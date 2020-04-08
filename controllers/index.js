@@ -2,12 +2,7 @@ const mongoose = require('mongoose');
 
 // Go to Home
 function goToHome(req, res) {
-    res.render('index', {page : 'home', session: req.session});
-
-
-    createConversation('5e8dd22bc7f6866dad8e33b7', []);
-
-    getUserConversations('5e8dd22bc7f6866dad8e33b7');
+    res.render('index', {page : 'home', session: req.session, conversations: null});
 }
 
 // Go to profile
@@ -36,8 +31,20 @@ function goToConversation(req, res) {
     } else {
         // TODO WE NEED TO CHECK THAT THIS PERSON IS IN THIS CONVERSATION !!!!!!!
 
-        // We render the page with the last conversation
-        res.render('index', {page : 'conversation', session: req.session, conversation:{}});
+        // Here we check that this player is trying to access a conversation he belongs in
+        userBelongsToTheConversation(req.params.id, req.session.userid).then(function (response) {
+
+            // If the user belongs to the conversation we can render the page
+           if (response) {
+               // We render the page with the last conversation
+               res.render('index', {page : 'conversation', session: req.session, conversationid: req.params.id});
+           }
+
+           // Else we redirect him to the home page...
+           else {
+               res.redirect('/');
+           }
+        });
     }
 }
 
@@ -102,11 +109,12 @@ function signUpPerson(req, res) {
                         email: req.body.email.toLowerCase()
                     });
 
-                    newAccount.save(function (err) {
+                    newAccount.save(function (err, object) {
                         if (err) throw err;
 
                         //Store user's username into session
                         req.session.username = req.body.username.toLowerCase();
+                        req.session.userid = object._id;
                     });
                     res.end('done');
                 }
@@ -142,6 +150,7 @@ function logInPerson(req, res) {
         // If we get a result this means this username with this hashed password exists
         if (result.length === 1) {
             req.session.username = req.body.username.toLowerCase();
+            req.session.userid = result[0]._id;
             res.end('done');
         } else {
             res.end('error');
@@ -188,6 +197,33 @@ function getConversation(id) {
     })
 }
 
+function userBelongsToTheConversation(conversationId, userId) {
+    return new Promise(function (resolve, reject) {
+
+        let o_conversationId;
+
+        // As ObjectId must follows specific characteristics we must do try catch clause in case the cast is not permitted
+        try {
+             o_conversationId = mongoose.Types.ObjectId(conversationId);
+        } catch (e) {
+            resolve(false);
+            return;
+        }
+
+        const Models = require("../models");
+        Models.Conversation.find({_id: conversationId, "users" : { $in : [userId]  } } ).exec(function (err, conversations) {
+            if (err) throw err;
+
+            // If the size is greater than 0 that means the user belongs to the conversation
+            if (conversations.length > 0) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
+    })
+}
+
 // Simple method to get the "strength"
 function getPasswordStrength(password) {
     let toReturn;
@@ -217,16 +253,16 @@ function getPasswordStrength(password) {
 
 // Get the conversations of a user from its id
 function getUserConversations(id) {
+    return new Promise(function (resolve, reject) {
 
-    const Models = require("../models");
-    var ObjectId = require('mongodb').ObjectID;
+        const Models = require("../models");
+        Models.Conversation.find({"users" : { $in : [id]  } } ).exec(function (err, conversations) {
+            //Models.User.find({"users": id}, function (err, conversations) {
+            if (err) throw err;
 
-    Models.User.find({"users": {"$in": [new ObjectId(id)]}}, function (err, conversations) {
-    //Models.User.find({"users": id}, function (err, conversations) {
-        if (err) throw err;
-
-        console.log(conversations)
-    });
+            resolve(conversations);
+        });
+    })
 }
 
 // Create a conversation with a list of participants

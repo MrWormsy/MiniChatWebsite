@@ -3,7 +3,7 @@
     <div class="container">
         <div class="columns is-centered">
             <div class="column is-6">
-                <nav class="panel">
+                <nav class="panel is-centered" id="panelConversations">
                     <p class="panel-heading">
                         Conversations
                     </p>
@@ -16,15 +16,38 @@
                         </p>
                     </div>
 
-                    <a class="panel-block">
-                        <span class="panel-icon">
-                          <i class="fas fa-envelope"></i>
-                      </span>
-                        marksheet
-                    </a>
 
+                    <% // Check if the user is logged to display his conversations
+                    if((!session.username)) { %>
+                        You do not have any conversations because you are not logged in.
+                    <% } %>
                 </nav>
             </div>
         </div>
     </div>
 </section>
+
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+<script>
+
+    const userid = "<%=session.userid%>";
+
+    let tbody = $("#tbody");
+
+    // If the user id exists that means the player is logged and we can populate the table
+    if (userid !== "") {
+        $.getJSON('/api/conversations/' + userid, function(data) {
+
+            var container = $("#panelConversations");
+            var values = "";
+
+            data.forEach(function (d) {
+                values += `<a class="panel-block" href="/conversation/${d._id}"><span class="panel-icon"><i class="fas fa-envelope"></i></span>${d.name}</a>`;
+            })
+
+            $(container).append(values);
+        });
+    }
+
+</script>

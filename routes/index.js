@@ -8,7 +8,7 @@ router.get('/home', (req, res) => {
 });
 
 // Go to a conversation chat page
-router.get('/conversation', (req, res) => {
+router.get('/conversation/:id', (req, res) => {
   controller.goToConversation(req, res);
 });
 
@@ -55,6 +55,13 @@ router.get('/api/username/:username', (req, res) => {
 // Check if email exists
 router.get('/api/email/:email', (req, res) => {
   controller.getEmail(req, res);
+});
+
+// Get the conversations the user is in
+router.get('/api/conversations/:userid', (req, res) => {
+  controller.getUserConversations(req.params.userid).then(function (d) {
+    res.json(d);
+  })
 });
 
 module.exports = router;
