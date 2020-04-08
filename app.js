@@ -74,9 +74,24 @@ conversations.on('connection', function(socket) {
     socket.join(msg.conversationId);
     socket.conversationId = msg.conversationId;
     socket.userId = msg.userId;
+    socket.username = msg.username;
 
-    // TODO As the user joined we can add it to the redis database to know that he is online and warn the conversation that he has joined
+    // TODO As the user joined we can add it to the redis database to know that he is online
 
+    // Add a redis variable with the conversation id, the user id and the username to be able to handle the disconnection
+    // Add the conversation id
+    client.hset(socket.client.id, 'conversationId', msg.conversationId);
+
+    // Add the userId
+    client.hset(socket.client.id, 'userId', msg.userId);
+
+    // Add the username
+    client.hset(socket.client.id, 'username', msg.username);
+
+    // TODO Do we keep the history of the player's connections ?
+
+    // Warn the conversation that the user has joined the chat
+    conversations.to(msg.conversationId).emit('user joined', msg.username);
   });
 
   // When we chat we redirect the messages to their corresponding conversations
@@ -91,9 +106,11 @@ conversations.on('connection', function(socket) {
   // When the user disconnects we kill the socket
   socket.on('disconnect', function() {
 
-    // socket.headers.referer
-
     // TODO remove the user from the the redis server and we need to warn the people in the conversation that he has quit ?
+
+
+    // Remove the socket data from the redis server
+    client.del(socket.client.id);
 
     socket.disconnect();
   });
