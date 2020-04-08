@@ -279,17 +279,31 @@ function createConversation(leaderId, friendIds) {
         users: users
     });
 
-    newConversation.save(function (err, object) {
+    newConversation.save(function (err) {
         if (err) throw err;
-
-        //Store user's username into session
-        console.log(object);
     });
 }
+
+// Add a message into the database
+function addMessageToDatabase(message) {
+
+    const Models = require("../models");
+
+    const newMessage = Models.Message(message);
+
+    newMessage.save(function (err) {
+        if (err) throw err;
+    });
+}
+
+
+
+
 
 module.exports.getConversation = getConversation;
 module.exports.getUserConversations = getUserConversations;
 module.exports.createConversation = createConversation;
+module.exports.addMessageToDatabase = addMessageToDatabase;
 
 module.exports.goToHome = goToHome;
 module.exports.goToConversation = goToConversation;

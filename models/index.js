@@ -12,7 +12,15 @@ const Conversation = new Schema({
     users: [{type: Schema.Types.ObjectId, ref: 'User'}]
 });
 
+const Message = new Schema({
+    timestamp : Number,
+    conversationId: String,
+    senderId : String,
+    content: String
+});
+
 module.exports = {
     User: mongoose.model('User', User),
+    Message: mongoose.model('Message', Message),
     Conversation: mongoose.model('Conversation', Conversation)
 };

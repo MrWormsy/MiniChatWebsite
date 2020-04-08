@@ -55,12 +55,12 @@
     // The socket variable
     const socket = io('/conversations');
 
-    socket.emit('choose conversation', conversationId);
+    socket.emit('choose conversation', {conversationId: conversationId, userId: senderId});
 
     function emitMessage(message) {
 
         // Format the message to suit the database
-        let messageToSend = {timestamp: Date.now(), conversationId: conversationId, senderId: senderId, message: message};
+        let messageToSend = {timestamp: Date.now(), conversationId: conversationId, senderId: senderId, content: message};
 
         console.log(messageToSend);
 
@@ -94,7 +94,7 @@
 
         // When the socket receives the 'chat message event'
         socket.on('chat message', function (msg) {
-            $('#messages').append($('<li>').text(msg.message));
+            $('#messages').append($('<li>').text(msg.content));
         });
     });
 </script>
