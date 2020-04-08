@@ -62,10 +62,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', dirViews);
 app.set('view engine', 'ejs');
 
+const conversations = io.of('/conversations');
 
-io.on('connection', function(socket) {
+conversations.on('connection', function(socket) {
+
+  socket.on('choose conversation', function (msg) {
+    socket.join(msg);
+  });
+
   socket.on('chat message', function(msg) {
-    io.emit('chat message', msg);
+    conversations.to(msg.conversationId).emit('chat message', msg);
   });
 
   socket.on('disconnect', function() {

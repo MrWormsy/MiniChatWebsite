@@ -49,6 +49,25 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
+    const conversationId = "<%=conversationid%>";
+    const senderId = "<%=session.userid%>";
+
+    // The socket variable
+    const socket = io('/conversations');
+
+    socket.emit('choose conversation', conversationId);
+
+    function emitMessage(message) {
+
+        // Format the message to suit the database
+        let messageToSend = {timestamp: Date.now(), conversationId: conversationId, senderId: senderId, message: message};
+
+        console.log(messageToSend);
+
+        // Emit from this socket to the server and the server will do the rest
+        socket.emit('chat message', messageToSend);
+    }
+
     $(function () {
 
         // When the user press enter on the message input we send it
@@ -57,9 +76,6 @@
                 $('#sendButton').click();
             }
         });
-
-        // The socket variable
-        let socket = io();
 
         // When we click the button
         $('#sendButton').click(function (e) {
@@ -70,15 +86,15 @@
                 return;
             }
 
-            socket.emit('chat message', $('#m').val());
+            emitMessage($('#m').val());
+
             $('#m').val('');
             return false;
         });
 
         // When the socket receives the 'chat message event'
         socket.on('chat message', function (msg) {
-            console.log(msg)
-            $('#messages').append($('<li>').text(msg));
+            $('#messages').append($('<li>').text(msg.message));
         });
     });
 </script>
