@@ -106,12 +106,39 @@ conversations.on('connection', function(socket) {
   // When the user disconnects we kill the socket
   socket.on('disconnect', function() {
 
-    // TODO remove the user from the the redis server and we need to warn the people in the conversation that he has quit ?
+    let conversationId;
+    let username;
 
+    // We create two Promises to get the two values to handle the disconnection
 
-    // Remove the socket data from the redis server
-    client.del(socket.client.id);
+    let promiseArray = [];
+    promiseArray.push( new Promise(function (resolve) {
+          client.hget(socket.client.id, 'conversationId', function (err, response) {
+            conversationId = response;
+            resolve(response);
+          })
+        })
+    );
 
+    promiseArray.push( new Promise(function (resolve) {
+        client.hget(socket.client.id, 'username', function (err, response) {
+          username = response;
+          resolve(response);
+        })
+      })
+    );
+
+    // We wait the end of all the promises to emit and delete the variable on redis
+    Promise.all(promiseArray).then(function () {
+
+      // Emit that a user has been disconnected
+      conversations.to(conversationId).emit('user quit', username);
+
+      // Remove the socket data from the redis server after getting all the information needed
+      client.del(socket.client.id);
+    });
+
+    // Kill the socket
     socket.disconnect();
   });
 });
