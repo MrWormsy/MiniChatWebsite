@@ -1,0 +1,84 @@
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-6-tablet is-5-desktop is-4-widescreen">
+                <div class="notification">
+
+                    <!-- USERNAME -->
+                    <div class="field">
+                        <label class="label">Username</label>
+                        <div class="control has-icons-left has-icons-right">
+                            <input class="input" type="text" placeholder="Username input" id="username">
+                            <span class="icon is-small is-left">
+                      <i class="fas fa-user"></i>
+                        </span><span class="icon is-small is-right">
+                    </span>
+                        </div>
+                    </div>
+
+
+
+                    <!-- PASSWORD -->
+                    <div class="field">
+                        <label class="label">Password</label>
+                        <div class="control has-icons-left has-icons-right">
+                            <input class="input" type="password" placeholder="Password input" id="password">
+                            <span class="icon is-small is-left">
+                      <i class="fas fa-lock"></i>
+                        </span><span class="icon is-small is-right">
+                    </span>
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <button class="button is-link" value="Submit" id="submit">Submit</button>
+                    </div>
+                </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script>
+
+    // Click button when press enter in input
+    document.getElementById("username").addEventListener("keyup", function (event) {
+        // If enter is pressed
+        if (event.keyCode === 13) {
+            event.preventDefault();
+
+            // Click the button
+            document.getElementById("submit").click();
+        }
+    })
+
+    document.getElementById("password").addEventListener("keyup", function (event) {
+        // If enter is pressed
+        if (event.keyCode === 13) {
+            event.preventDefault();
+
+            // Click the button
+            document.getElementById("submit").click();
+        }
+    })
+
+
+    $(document).ready(function () {
+        var username, pass;
+        $("#submit").click(function () {
+            username = $("#username").val();
+            pass = $("#password").val();
+            $.post("/login", {username: username, pass: pass}, function (data) {
+                if (data === 'done') {
+                    window.location.href = "/home";
+                } else {
+                    alert('Error your username/password is not valid');
+                }
+            });
+        });
+    });
+</script>

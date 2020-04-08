@@ -1,0 +1,597 @@
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-6-tablet is-5-desktop is-4-widescreen">
+        <div class="notification">
+
+            <!-- USERNAME -->
+            <div class="field">
+                <label class="label">Username</label>
+                <div class="control has-icons-left has-icons-right">
+                    <input class="input" type="text" placeholder="Username input" id="username" oninput="checkUsername(this, false)" onfocusout="checkUsername(this, true)">
+                    <span class="icon is-small is-left">
+                      <i class="fas fa-user"></i>
+                        </span><span class="icon is-small is-right">
+                      <i style="display: none" class="fas" id="icon_username_validation"></i>
+                    </span>
+                </div>
+                <p id="p_username" style="display: none" class="help"></p>
+            </div>
+
+
+            <!-- EMAIL -->
+            <div class="field">
+                <label class="label">Email</label>
+                <div class="control has-icons-left has-icons-right">
+                    <input class="input" type="email" placeholder="Email input" id="email" oninput="checkEmail(this, false)" onfocusout="checkEmail(this, true)">
+                    <span class="icon is-small is-left">
+                      <i class="fas fa-envelope"></i>
+                        </span><span class="icon is-small is-right">
+                      <i style="display: none" class="fas" id="icon_email_validation"></i>
+                    </span>
+                </div>
+                <p id="p_email" style="display: none" class="help"></p>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="field">
+                <label class="label">Password</label>
+                <div class="control has-icons-left has-icons-right">
+                    <input class="input" type="password" placeholder="Password input" id="password" oninput="checkPassword(this)" onfocusin="showPasswordBarFocus(true)" onfocusout="showPasswordBarFocus(false)">
+                    <span class="icon is-small is-left">
+                      <i class="fas fa-lock"></i>
+                        </span><span class="icon is-small is-right">
+                      <i style="display: none" class="fas" id="icon_password_validation"></i>
+                    </span>
+                </div>
+
+                <div class="control has-icons-left has-icons-right">
+                    <input class="input" type="password" placeholder="Password confirmation" id="passwordconf" oninput="checkPasswordConfirmation(this)">
+                    <span class="icon is-small is-left">
+                      <i class="fas fa-lock"></i>
+                        </span><span class="icon is-small is-right">
+                      <i style="display: none" class="fas" id="icon_passwordconf_validation"></i>
+                    </span>
+                </div>
+
+
+                <p id="password_force_bar" style="display: none" class="help"><progress class="progress is-danger" value="0" max="100"></progress></p>
+
+                <p id="p_password" style="display: none" class="help"></p>
+            </div>
+
+            <label class="checkbox">
+                <input type="checkbox" id="checkbox">
+                I agree to the terms and conditions.
+            </label><br/><br/>
+
+            <div class="control">
+                <button class="button is-link" value="Submit" id="submit">Submit</button>
+            </div>
+        </div>
+        </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script>
+
+    function getPasswordStrength(password) {
+
+        let toReturn;
+
+        // If the password length is less than or equal to 6
+        if(password.length<=6) {
+            toReturn = 0;
+        }
+
+        // If the password length is greater than 6 and contain any lowercase alphabet or any number or any special character
+        if(password.length>6 && (password.match(/[a-z]/) || password.match(/\d+/) || password.match(/.[!,@,#,$,%,^,&,*,?,_,~,-,(,)]/))) {
+            toReturn = 1;
+        }
+
+        // If the password length is greater than 6 and contain alphabet,number,special character respectively
+        if(password.length>6 && ((password.match(/[a-z]/) && password.match(/\d+/)) || (password.match(/\d+/) && password.match(/.[!,@,#,$,%,^,&,*,?,_,~,-,(,)]/)) || (password.match(/[a-z]/) && password.match(/.[!,@,#,$,%,^,&,*,?,_,~,-,(,)]/)))) {
+            toReturn = 2;
+        }
+
+        // If the password length is greater than 6 and must contain alphabets,numbers and special characters
+        if(password.length>6 && password.match(/[a-z]/) && password.match(/\d+/) && password.match(/.[!,@,#,$,%,^,&,*,?,_,~,-,(,)]/)) {
+            toReturn = 3;
+        }
+
+        return toReturn;
+
+    }
+
+    // Show or hide password force bar
+    function showPasswordBarFocus(show) {
+        if (show) {
+            document.getElementById("password_force_bar").style.display = null;
+        } else {
+            document.getElementById("password_force_bar").style.display = "none";
+        }
+    }
+
+    function checkPasswordConfirmation(param) {
+
+        let p_passwordconf = document.getElementById("p_password");
+        let icon_passwordconf_validation = document.getElementById("icon_passwordconf_validation");
+
+        // We check that the password confirmation is the same as the password
+        if (param.value === document.getElementById("password").value) {
+
+            // Change the color
+            param.classList.add("is-success");
+            param.classList.remove("is-danger");
+
+            // Show the icon
+            icon_passwordconf_validation.style.display = null;
+
+            // And change the icon type
+            icon_passwordconf_validation.classList.remove("fa-exclamation-triangle");
+            icon_passwordconf_validation.classList.add("fa-check");
+
+            // Show the hint
+            p_passwordconf.style.display = null;
+
+            // Change the text and the color
+            p_passwordconf.textContent = "Password is valid";
+            p_passwordconf.classList.add("is-success");
+            p_passwordconf.classList.remove("is-danger");
+        }
+
+        // Else we warn the person
+        else {
+
+            // Change the color
+            param.classList.add("is-danger");
+            param.classList.remove("is-success");
+
+            // Show the icon
+            icon_passwordconf_validation.style.display = null;
+
+            // And change the icon type
+            icon_passwordconf_validation.classList.add("fa-exclamation-triangle");
+            icon_passwordconf_validation.classList.remove("fa-check");
+
+            // Show the hint
+            p_passwordconf.style.display = null;
+
+            // Change the text and the color
+            p_passwordconf.textContent = "Password confirmation does not correspond";
+            p_passwordconf.classList.remove("is-success");
+            p_passwordconf.classList.add("is-danger");
+        }
+    }
+
+    function checkPassword(param) {
+
+        let p_password = document.getElementById("p_password");
+        let icon_password_validation = document.getElementById("icon_password_validation");
+
+        let passwordBar = document.getElementById("password_force_bar").childNodes[0];
+
+        // Reset the bat color
+        passwordBar.classList.remove("is-danger");
+        passwordBar.classList.remove("is-success");
+        passwordBar.classList.remove("is-warning");
+
+        // If nothing reset everything
+        if ((param.value).length === 0) {
+            param.classList.remove("is-danger");
+            param.classList.remove("is-success");
+
+            // Hide the hint
+            p_password.style.display = "none";
+            icon_password_validation.style.display = "none";
+
+            passwordBar.style.display = "none";
+
+            return;
+        }
+
+        // We check that the password is strong enough
+        let passwordForce = getPasswordStrength(param.value);
+
+        if (passwordForce > 0) {
+
+            // Change the color
+            param.classList.add("is-success");
+            param.classList.remove("is-danger");
+
+            // Show the icon
+            icon_password_validation.style.display = null;
+
+            // And change the icon type
+            icon_password_validation.classList.remove("fa-exclamation-triangle");
+            icon_password_validation.classList.add("fa-check");
+
+            // Show the hint
+            p_password.style.display = null;
+
+            // Change the text and the color
+            p_password.textContent = "Password is valid";
+            p_password.classList.add("is-success");
+            p_password.classList.remove("is-danger");
+
+            // Change color with the force of the password
+            passwordBar.style.display = null;
+
+            // Orange
+            if (passwordForce === 1) {
+                passwordBar.classList.add("is-warning");
+                passwordBar.value = 66;
+            }
+
+            // Green
+            else if (passwordForce === 2) {
+                passwordBar.classList.add("is-success");
+                passwordBar.value = 75;
+            }
+
+            // Green but the force is really good
+            else {
+                passwordBar.classList.add("is-success");
+                passwordBar.value = 100;
+            }
+        }
+
+        // Else we warn the person
+        else {
+
+            // Change the color
+            param.classList.add("is-danger");
+            param.classList.remove("is-success");
+
+            // Show the icon
+            icon_password_validation.style.display = null;
+
+            // And change the icon type
+            icon_password_validation.classList.add("fa-exclamation-triangle");
+            icon_password_validation.classList.remove("fa-check");
+
+            // Show the hint
+            p_password.style.display = null;
+
+            // Change the text and the color
+            p_password.textContent = "Password is not strong enough";
+            p_password.classList.remove("is-success");
+            p_password.classList.add("is-danger");
+
+            // Change bar color
+            passwordBar.style.display = null;
+
+            passwordBar.classList.add("is-danger");
+            passwordBar.value = 33;
+        }
+    }
+
+
+    function checkEmail(param, isFocusOut) {
+
+        let p_email = document.getElementById("p_email");
+        let icon_email_validation = document.getElementById("icon_email_validation");
+
+        // If nothing reset everything
+        if ((param.value).length === 0) {
+            param.classList.remove("is-danger");
+            param.classList.remove("is-success");
+
+            // Hide the hint
+            p_email.style.display = "none";
+            icon_email_validation.style.display = "none";
+
+            return;
+        }
+
+        // We check with a regex that the username has a good format
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(param.value)) {
+
+            // Change the color
+            param.classList.add("is-success");
+            param.classList.remove("is-danger");
+
+            // Show the icon
+            icon_email_validation.style.display = null;
+
+            // And change the icon type
+            icon_email_validation.classList.remove("fa-exclamation-triangle");
+            icon_email_validation.classList.add("fa-check");
+
+            // Show the hint
+            p_email.style.display = null;
+
+            // Change the text and the color
+            p_email.textContent = "Email is valid";
+            p_email.classList.add("is-success");
+            p_email.classList.remove("is-danger");
+        }
+
+        // Else we warn the person
+        else {
+
+            // Change the color
+            param.classList.add("is-danger");
+            param.classList.remove("is-success");
+
+            // Show the icon
+            icon_email_validation.style.display = null;
+
+            // And change the icon type
+            icon_email_validation.classList.add("fa-exclamation-triangle");
+            icon_email_validation.classList.remove("fa-check");
+
+            // Show the hint
+            p_email.style.display = null;
+
+            // Change the text and the color
+            p_email.textContent = "Email is not valid";
+            p_email.classList.remove("is-success");
+            p_email.classList.add("is-danger");
+
+            return;
+        }
+
+        // If focus out we check that this email is not already taken
+        if (isFocusOut) {
+            $.getJSON('/api/email/' + (param.value).toLowerCase(), function (data) {
+
+                // The email address already exists
+                if (data.length !== 0) {
+
+                    // Change the color
+                    param.classList.add("is-danger");
+                    param.classList.remove("is-success");
+
+                    // Show the icon
+                    icon_email_validation.style.display = null;
+
+                    // And change the icon type
+                    icon_email_validation.classList.add("fa-exclamation-triangle");
+                    icon_email_validation.classList.remove("fa-check");
+
+                    // Show the hint
+                    p_email.style.display = null;
+
+                    // Change the text and the color
+                    p_email.textContent = "Email is already taken";
+                    p_email.classList.remove("is-success");
+                    p_email.classList.add("is-danger");
+                }
+
+                // Else everything is fine
+                else {
+
+                    // Change the color
+                    param.classList.add("is-success");
+                    param.classList.remove("is-danger");
+
+                    // Show the icon
+                    icon_email_validation.style.display = null;
+
+                    // And change the icon type
+                    icon_email_validation.classList.remove("fa-exclamation-triangle");
+                    icon_email_validation.classList.add("fa-check");
+
+                    // Show the hint
+                    p_email.style.display = null;
+
+                    // Change the text and the color
+                    p_email.textContent = "Email is valid";
+                    p_email.classList.add("is-success");
+                    p_email.classList.remove("is-danger");
+                }
+            });
+        }
+    }
+
+    // Here we have to check that the username is not less than 3 characters and available is the focus is out
+    function checkUsername(param, isFocusOut) {
+
+        let p_username = document.getElementById("p_username");
+        let icon_username_validation = document.getElementById("icon_username_validation");
+
+        // If nothing reset everything
+        if ((param.value).length === 0) {
+            param.classList.remove("is-danger");
+            param.classList.remove("is-success");
+
+            // Hide the hint
+            p_username.style.display = "none";
+            icon_username_validation.style.display = "none";
+
+            return;
+        }
+
+        // We check if the username is long enough
+        if ((param.value).length >= 3) {
+
+            // Change the color
+            param.classList.add("is-success");
+            param.classList.remove("is-danger");
+
+            // Show the icon
+            icon_username_validation.style.display = null;
+
+            // And change the icon type
+            icon_username_validation.classList.remove("fa-exclamation-triangle");
+            icon_username_validation.classList.add("fa-check");
+
+            // Show the hint
+            p_username.style.display = null;
+
+            // Change the text and the color
+            p_username.textContent = "Username is valid";
+            p_username.classList.add("is-success");
+            p_username.classList.remove("is-danger");
+        }
+
+        // Else we warn the person
+        else {
+
+            // Change the color
+            param.classList.add("is-danger");
+            param.classList.remove("is-success");
+
+            // Show the icon
+            icon_username_validation.style.display = null;
+
+            // And change the icon type
+            icon_username_validation.classList.add("fa-exclamation-triangle");
+            icon_username_validation.classList.remove("fa-check");
+
+            // Show the hint
+            p_username.style.display = null;
+
+            // Change the text and the color
+            p_username.textContent = "Username is not valid";
+            p_username.classList.remove("is-success");
+            p_username.classList.add("is-danger");
+
+            return;
+        }
+
+        // If focus out we check that this email is not already taken
+        if (isFocusOut) {
+            $.getJSON('/api/username/' + (param.value).toLowerCase(), function (data) {
+
+                // The username already exists
+                if (data.length !== 0) {
+
+                    // Change the color
+                    param.classList.add("is-danger");
+                    param.classList.remove("is-success");
+
+                    // Show the icon
+                    icon_username_validation.style.display = null;
+
+                    // And change the icon type
+                    icon_username_validation.classList.add("fa-exclamation-triangle");
+                    icon_username_validation.classList.remove("fa-check");
+
+                    // Show the hint
+                    p_username.style.display = null;
+
+                    // Change the text and the color
+                    p_username.textContent = "Username is already taken";
+                    p_username.classList.remove("is-success");
+                    p_username.classList.add("is-danger");
+
+                    return;
+                }
+
+                // Else everything is fine
+                else {
+
+                    // Change the color
+                    param.classList.add("is-success");
+                    param.classList.remove("is-danger");
+
+                    // Show the icon
+                    icon_username_validation.style.display = null;
+
+                    // And change the icon type
+                    icon_username_validation.classList.remove("fa-exclamation-triangle");
+                    icon_username_validation.classList.add("fa-check");
+
+                    // Show the hint
+                    p_username.style.display = null;
+
+                    // Change the text and the color
+                    p_username.textContent = "Username is valid";
+                    p_username.classList.add("is-success");
+                    p_username.classList.remove("is-danger");
+                }
+            });
+        }
+
+    }
+
+    $(document).ready(function () {
+        var username, pass, passconf, email, checkbox;
+        $("#submit").click(function () {
+            username = $("#username").val();
+            pass = $("#password").val();
+            passconf = $("#passwordconf").val();
+            email = $("#email").val();
+            checkbox = $("#checkbox").is(":checked");
+
+            // If the checkbox is not ticked we abort
+            if (!checkbox) {
+                alert('You must agree to the terms and conditions.');
+                return;
+            }
+
+            if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+                alert('Email is not valid');
+                return;
+            }
+
+            if (username.length < 3) {
+                alert('Username is not long enough');
+                return;
+            }
+
+            if (getPasswordStrength(pass) === 0) {
+                alert("The password is not strong enough");
+                return;
+            }
+
+            // First we need to check if the username is already used
+            $.getJSON('/api/username/' + username.toLowerCase(), function (data) {
+                if (data.length == 0) {
+
+                    // First we need to check if the email is already used
+                    $.getJSON('/api/email/' + email.toLowerCase(), function (data2) {
+                        if (data2.length == 0) {
+
+                            // Check is passwords are the same
+                            if (pass == passconf) {
+
+                                $.post("/signup", {
+                                    username: username,
+                                    pass: pass,
+                                    passconf: passconf,
+                                    email: email
+                                }, function (data) {
+                                    if (data === 'done') {
+                                        window.location.href = "/home";
+                                    } else {
+                                        alert("An error has occurred");
+                                    }
+                                });
+
+                            } else {
+                                alert('Email already taken');
+                            }
+
+                        } else {
+                            alert('Email already taken');
+                        }
+                    });
+
+                } else {
+                    alert('Username already taken');
+                }
+            });
+
+            /*
+
+            $.post("/signup",{username:username, pass:pass, passconf:passconf, email:email}, function(data){
+                if(data==='done') {
+                    window.location.href="/home";
+                } else if (data==='error_username') {
+                    alert('Username already taken');
+                } else if (data==='error_password') {
+                    alert('Passwords do not match');
+                } else if (data==='error_email') {
+                    alert('Email already taken');
+                }
+            });
+
+            */
+        });
+    });
+</script>
