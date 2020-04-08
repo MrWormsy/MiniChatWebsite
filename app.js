@@ -76,7 +76,16 @@ conversations.on('connection', function(socket) {
     socket.userId = msg.userId;
     socket.username = msg.username;
 
-    // TODO As the user joined we can add it to the redis database to know that he is online
+    // TODO DO SOMETHING NOT TO SPAM THE CLIENTS WHEN SOMEONE RELOAD OR CHANGE PAGE
+
+    // We add the user into the list of connected users // Only if he his not already in
+    client.rpush("connectedUsers", msg.username);
+
+    // As a player joins we tell the other users that a new person is online
+    client.lrange("connectedUsers", 0, -1, function (err, result) {
+      if (err) throw err;
+      conversations.emit('users online', result);
+    });
 
     // Add a redis variable with the conversation id, the user id and the username to be able to handle the disconnection
     // Add the conversation id
@@ -108,12 +117,13 @@ conversations.on('connection', function(socket) {
 
     let conversationId;
     let username;
+    let socketId = socket.client.id;
 
     // We create two Promises to get the two values to handle the disconnection
 
     let promiseArray = [];
     promiseArray.push( new Promise(function (resolve) {
-          client.hget(socket.client.id, 'conversationId', function (err, response) {
+          client.hget(socketId, 'conversationId', function (err, response) {
             conversationId = response;
             resolve(response);
           })
@@ -121,7 +131,7 @@ conversations.on('connection', function(socket) {
     );
 
     promiseArray.push( new Promise(function (resolve) {
-        client.hget(socket.client.id, 'username', function (err, response) {
+        client.hget(socketId, 'username', function (err, response) {
           username = response;
           resolve(response);
         })
@@ -134,8 +144,17 @@ conversations.on('connection', function(socket) {
       // Emit that a user has been disconnected
       conversations.to(conversationId).emit('user quit', username);
 
+      // We remove the user from the connected persons
+      client.lrem('connectedUsers', 1, "" + username);
+
+      // And we emit to everyone the now list of connected persons
+      client.lrange("connectedUsers", 0, -1, function (err, result) {
+        if (err) throw err;
+        conversations.emit('users online', result);
+      });
+
       // Remove the socket data from the redis server after getting all the information needed
-      client.del(socket.client.id);
+      client.del(socketId);
     });
 
     // Kill the socket

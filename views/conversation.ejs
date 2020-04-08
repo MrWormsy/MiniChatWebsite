@@ -105,6 +105,12 @@
         socket.on('user quit', function (message) {
             $('#messages').append($('<li>').text(message + " has quit the chat"));
         })
+
+        // When we want to update the list of online users
+        // TODO ISSUE HERE, THIS DO NOT TRIGGERS
+        socket.on('users online', function (message) {
+            console.log(message);
+        })
     });
 </script>
 
