@@ -1,6 +1,13 @@
+const mongoose = require('mongoose');
+
 // Go to Home
 function goToHome(req, res) {
     res.render('index', {page : 'home', session: req.session});
+
+
+    createConversation('5e8dd22bc7f6866dad8e33b7', []);
+
+    getUserConversations('5e8dd22bc7f6866dad8e33b7');
 }
 
 // Go to profile
@@ -17,6 +24,20 @@ function goToProfile(req, res) {
             if (err) throw err;
             res.render('index', {page : 'profile', session: req.session, user: user[0]});
         });
+    }
+}
+
+// Go to a conversation page
+function goToConversation(req, res) {
+    // If the person is not logged in we redirect to home
+    if (typeof req.session.username === 'undefined') {
+        res.redirect('/');
+        // Otherwise we display the profile page
+    } else {
+        // TODO WE NEED TO CHECK THAT THIS PERSON IS IN THIS CONVERSATION !!!!!!!
+
+        // We render the page with the last conversation
+        res.render('index', {page : 'conversation', session: req.session, conversation:{}});
     }
 }
 
@@ -194,10 +215,48 @@ function getPasswordStrength(password) {
     return toReturn;
 }
 
+// Get the conversations of a user from its id
+function getUserConversations(id) {
+
+    const Models = require("../models");
+    var ObjectId = require('mongodb').ObjectID;
+
+    Models.User.find({"users": {"$in": [new ObjectId(id)]}}, function (err, conversations) {
+    //Models.User.find({"users": id}, function (err, conversations) {
+        if (err) throw err;
+
+        console.log(conversations)
+    });
+}
+
+// Create a conversation with a list of participants
+function createConversation(leaderId, friendIds) {
+    const Models = require("../models");
+
+    let users = friendIds;
+    users.push(leaderId);
+
+    // We first create a conversation with the leader in it
+    // create an account
+    const newConversation = Models.Conversation({
+        name: 'Test conversation',
+        users: users
+    });
+
+    newConversation.save(function (err, object) {
+        if (err) throw err;
+
+        //Store user's username into session
+        console.log(object);
+    });
+}
 
 module.exports.getConversation = getConversation;
+module.exports.getUserConversations = getUserConversations;
+module.exports.createConversation = createConversation;
 
 module.exports.goToHome = goToHome;
+module.exports.goToConversation = goToConversation;
 module.exports.goToProfile = goToProfile;
 module.exports.goToSignUp = goToSignUp;
 module.exports.signUpPerson = signUpPerson;

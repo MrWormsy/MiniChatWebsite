@@ -1,0 +1,76 @@
+<style>
+    #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    #messages li {
+        padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+        background: #eee;
+    }
+
+</style>
+
+<div class="container">
+
+
+    <section class="section">
+        <ul id="messages"></ul>
+    </section>
+
+    <div class="field is-grouped">
+        <p class="control is-expanded">
+            <input id="m" autocomplete="off" class="input is-fullwidth" type="text" placeholder="Message">
+        </p>
+        <p class="control">
+            <a id="sendButton" class="button is-primary is-fullwidth">
+                <span class="icon"><i class="fas fa-paper-plane"></i></span>
+                <span>Send</span>
+            </a>
+        </p>
+    </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+    $(function () {
+
+        // When the user press enter on the message input we send it
+        $('#m').keyup(function (e) {
+            if (e.keyCode == 13) {
+                $('#sendButton').click();
+            }
+        });
+
+        // The socket variable
+        let socket = io();
+
+        // When we click the button
+        $('#sendButton').click(function (e) {
+            e.preventDefault(); // prevents page reloading
+
+            // We check that the message is not empty
+            if ($('#m').val() === '') {
+                return;
+            }
+
+            socket.emit('chat message', $('#m').val());
+            $('#m').val('');
+            return false;
+        });
+
+        // When the socket receives the 'chat message event'
+        socket.on('chat message', function (msg) {
+            console.log(msg)
+            $('#messages').append($('<li>').text(msg));
+        });
+    });
+</script>
+
+

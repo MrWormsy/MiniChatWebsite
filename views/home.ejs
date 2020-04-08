@@ -1,85 +1,30 @@
-<style>
-    #messages {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-    }
-
-    #messages li {
-        padding: 5px 10px;
-    }
-
-    #messages li:nth-child(odd) {
-        background: #eee;
-    }
-
-    .sendSection {
-        position: fixed;
-        padding-left: 1%;
-        bottom: 0;
-        width: 100%;
-    }
-
-</style>
-
-
+<!-- Here we want to list all the conversations of the person if he is connected -->
 <section class="section">
-    <ul id="messages"></ul>
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-6">
+                <nav class="panel">
+                    <p class="panel-heading">
+                        Conversations
+                    </p>
+                    <div class="panel-block">
+                        <p class="control has-icons-left">
+                            <input class="input" type="text" placeholder="Search conversation">
+                            <span class="icon is-left">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                            </span>
+                        </p>
+                    </div>
+
+                    <a class="panel-block">
+                        <span class="panel-icon">
+                          <i class="fas fa-envelope"></i>
+                      </span>
+                        marksheet
+                    </a>
+
+                </nav>
+            </div>
+        </div>
+    </div>
 </section>
-
-
-
-<div class="tile is-ancestor sendSection">
-    <div class="tile is-parent">
-        <div class="tile is-child">
-            <input id="m" autocomplete="off" class="input is-fullwidth" type="text" placeholder="Message">
-        </div>
-    </div>
-    <div class="tile is-parent is-1">
-        <div class="tile is-child">
-            <a id="sendButton" class="button is-primary is-fullwidth">
-                <span class="icon"><i class="fas fa-paper-plane"></i></span>
-                <span>Send</span>
-            </a>
-        </div>
-    </div>
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
-<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-<script>
-    $(function () {
-
-        // When the user press enter on the message input we send it
-        $('#m').keyup(function (e) {
-            if (e.keyCode == 13) {
-                $('#sendButton').click();
-            }
-        });
-
-        // The socket variable
-        let socket = io();
-
-        // When we click the button
-        $('#sendButton').click(function (e) {
-            e.preventDefault(); // prevents page reloading
-
-            // We check that the message is not empty
-            if ($('#m').val() === '') {
-                return;
-            }
-
-            socket.emit('chat message', $('#m').val());
-            $('#m').val('');
-            return false;
-        });
-
-        // When the socket receives the 'chat message event'
-        socket.on('chat message', function (msg) {
-            console.log(msg)
-            $('#messages').append($('<li>').text(msg));
-        });
-    });
-</script>
-
-

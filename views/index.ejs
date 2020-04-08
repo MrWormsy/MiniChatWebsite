@@ -36,7 +36,7 @@
                         <% if(!(!session.username)) { %>
                             <p class="control">
                                 <a class="button is-dark" href="/profile">
-                                    <span class="icon"><i class="fas fa-user-circle"></i></i></span>
+                                    <span class="icon"><i class="fas fa-user-circle"></i></span>
                                     <span>Profile</span>
                                 </a>
                             </p>
@@ -77,6 +77,8 @@
     <%- include('signup.ejs') %>
 <% } else if (page === 'profile') { %>
     <%- include('profile.ejs') %>
+<% } else if (page === 'conversation') { %>
+    <%- include('conversation.ejs') %>
 <% } else { %>
     <%- include('home.ejs') %>
 <% } %>
