@@ -17,6 +17,47 @@
         padding: 0.25em;
     }
 
+    .tooltip {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Tooltip text */
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        background-color: rgba(0, 0, 0, 0.75);
+        color: #fff;
+        text-align: center;
+        padding: 5px 5px;
+        border-radius: 6px;
+
+        font-size: 12px;
+
+        bottom: 120%;
+        margin-left: 0%; /* Use half of the width (120/2 = 60), to center the tooltip */
+
+        /* Position the tooltip text - see examples below! */
+        position: absolute;
+        z-index: 1;
+    }
+
+    /* Show the tooltip text when you mouse over the tooltip container */
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+    }
+
+    .tooltip .tooltiptext::after {
+        content: " ";
+        position: absolute;
+        top: 100%; /* At the bottom of the tooltip */
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: rgba(0, 0, 0, 0.75) transparent transparent transparent;
+    }
+
+
 </style>
 
 <div class="container">
@@ -86,11 +127,17 @@
         // If we have that, this means the messages written are old messages thus the username is as follow
 
 
+        //$('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<div class="tags are-medium" style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag is-rounded is-medium profile-pic">O</span>`)).append($(`<span class="tag is-rounded is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(new Date(message.timestamp).toLocaleString() + " " + messageUsername + " wrote " + message.content))));
+
         if (!message.username === true) {
             messageUsername = message.senderId.username;
         }
 
-        $('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(new Date(message.timestamp).toLocaleString() + " " + messageUsername + " wrote " + message.content)));
+        // <span class="tooltiptext">Tooltip text</span>
+
+        $('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag tooltip is-rounded is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(message.content).append($(`<span class="tooltiptext">`).text(new Date(message.timestamp).toGMTString().replace(" GMT", "") + ", " + messageUsername  + " said"))));
+
+        //$('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag is-rounded is-medium profile-pic">O</span>`)).append($(`<span class="tag is-rounded is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(new Date(message.timestamp).toLocaleString() + " " + messageUsername + " wrote " + message.content)));
     }
 
     function emitMessage(message) {
