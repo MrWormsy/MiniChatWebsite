@@ -16,7 +16,7 @@ const Conversation = new Schema({
 const Message = new Schema({
     timestamp : Number,
     conversationId: String,
-    senderId : String,
+    senderId : {type: Schema.Types.ObjectId, ref: 'User'},
     content: String
 });
 

@@ -308,7 +308,7 @@ function setLastSeenUser(userId) {
 function getMessagesFromConversation(conversationId) {
     return new Promise(function (resolve, reject) {
         const Models = require("../models");
-        Models.Message.find({conversationId: conversationId} ).sort({$natural:1}).limit(100).exec(function (err, messages) {
+        Models.Message.find({conversationId: conversationId} ).sort({$natural:1}).limit(100).populate('senderId').exec(function (err, messages) {
             if (err) throw err;
             resolve(messages);
         });
