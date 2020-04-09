@@ -15,7 +15,9 @@ function goToProfile(req, res) {
         // We render the profile with all the user's information
         const Models = require('../models');
 
-        Models.User.find({username: req.session.username.toLowerCase()}, function (err, user) {
+        let regex = new RegExp(["^", req.session.username, "$"].join(""), "i");
+
+        Models.User.find({username: regex}, function (err, user) {
             if (err) throw err;
             res.render('index', {page : 'profile', session: req.session, user: user[0]});
         });
@@ -90,12 +92,16 @@ function signUpPerson(req, res) {
         res.end('error');
     }
 
-    Models.User.find({email: req.body.email.toLowerCase()}, function (err, email) {
+    let regex = new RegExp(["^", req.body.email, "$"].join(""), "i");
+
+    Models.User.find({email: regex}, function (err, email) {
         if (err) throw err;
         if (email.length !== 0) {
             res.end('error');
         } else {
-            Models.User.find({username: req.body.username.toLowerCase()}, function (err, username) {
+            regex = new RegExp(["^", req.body.username, "$"].join(""), "i");
+
+            Models.User.find({username: regex}, function (err, username) {
 
                 if (err) throw err;
                 if (username.length !== 0) {
@@ -104,16 +110,16 @@ function signUpPerson(req, res) {
 
                     // create an account
                     const newAccount = Models.User({
-                        username: req.body.username.toLowerCase(),
+                        username: req.body.username,
                         password: pass,
-                        email: req.body.email.toLowerCase()
+                        email: req.body.email
                     });
 
                     newAccount.save(function (err, object) {
                         if (err) throw err;
 
                         //Store user's username into session
-                        req.session.username = req.body.username.toLowerCase();
+                        req.session.username = req.body.username;
                         req.session.userid = object._id;
                     });
                     res.end('done');
@@ -143,13 +149,15 @@ function logInPerson(req, res) {
 
     const Models = require('../models');
 
+    let regex = new RegExp(["^", req.body.username, "$"].join(""), "i");
+
     //Find user's username and password
-    Models.User.find({username: req.body.username.toLowerCase(), password: pass}, function (err, result) {
+    Models.User.find({username: regex, password: pass}, function (err, result) {
         if (err) throw err;
 
         // If we get a result this means this username with this hashed password exists
         if (result.length === 1) {
-            req.session.username = req.body.username.toLowerCase();
+            req.session.username = result[0].username;
             req.session.userid = result[0]._id;
             res.end('done');
         } else {
@@ -168,11 +176,15 @@ function logOut(req, res) {
     });
 }
 
+// /^bar$/i
+
 // Get a user from its username
 function getUsername(req, res) {
     const Models = require('../models');
 
-    Models.User.find({username: req.params.username.toLowerCase()}, function (err, username) {
+    let regex = new RegExp(["^", req.params.username, "$"].join(""), "i");
+
+    Models.User.find({username: regex}, function (err, username) {
         if (err) throw err;
         res.json(username);
     });
@@ -182,7 +194,9 @@ function getUsername(req, res) {
 function getEmail(req, res) {
     const Models = require('../models');
 
-    Models.User.find({email: req.params.email.toLowerCase()}, function (err, email) {
+    let regex = new RegExp(["^", req.params.email, "$"].join(""), "i");
+
+    Models.User.find({email: regex}, function (err, email) {
         if (err) throw err;
         res.json(email);
     });

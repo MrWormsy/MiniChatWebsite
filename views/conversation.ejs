@@ -133,9 +133,7 @@
             messageUsername = message.senderId.username;
         }
 
-        // <span class="tooltiptext">Tooltip text</span>
-
-        $('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag tooltip is-rounded is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(message.content).append($(`<span class="tooltiptext">`).text(new Date(message.timestamp).toGMTString().replace(" GMT", "") + ", " + messageUsername  + " said"))));
+        $('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag tooltip is-rounded is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(message.content).append($(`<span class="tooltiptext">`).text(new Date(message.timestamp).toGMTString().replace(" GMT", "") + ", " + `${messageUsername === username ? 'you' : username}` + " said"))));
 
         //$('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag is-rounded is-medium profile-pic">O</span>`)).append($(`<span class="tag is-rounded is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(new Date(message.timestamp).toLocaleString() + " " + messageUsername + " wrote " + message.content)));
     }
