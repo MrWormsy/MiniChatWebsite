@@ -58,6 +58,25 @@
 
     socket.emit('choose conversation', {conversationId: conversationId, userId: senderId, username: username});
 
+    // We need to load all the previous content of the conversation
+
+    // In a first time we only want the last 100
+    $.getJSON('/api/messages/' + conversationId, function(messages) {
+        messages.forEach(function (m) {
+            writeMessage(m);
+        })
+    });
+
+    // TODO DO PAGINATION TO RETRIEVE THE 100+ last messages
+
+    // Write a message in the client browser
+    function writeMessage(message) {
+
+        console.log(message);
+
+        $('#messages').append($('<li>').text(new Date(message.timestamp).toLocaleString() + " " + message.username + " wrote " + message.content));
+    }
+
     function emitMessage(message) {
 
         // Format the message to suit the database
@@ -93,7 +112,8 @@
 
         // When the socket receives the 'chat message event'
         socket.on('chat message', function (msg) {
-            $('#messages').append($('<li>').text(msg.username + ": " + msg.content));
+            writeMessage(msg);
+            //$('#messages').append($('<li>').text(new Date(msg.timestamp).toLocaleString() + " " + msg.username + " wrote " + msg.content));
         });
 
         // When a user join the chat

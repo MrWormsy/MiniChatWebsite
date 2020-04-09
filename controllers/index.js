@@ -296,14 +296,32 @@ function addMessageToDatabase(message) {
     });
 }
 
+// Update the last seen attribute of a user
+function setLastSeenUser(userId) {
+    const Models = require("../models");
+    Models.User.findOneAndUpdate({_id: userId}, {lastseen:Date.now()}, function (err) {
+        if (err) throw err;
+    })
+}
 
 
+function getMessagesFromConversation(conversationId) {
+    return new Promise(function (resolve, reject) {
+        const Models = require("../models");
+        Models.Message.find({conversationId: conversationId} ).sort({$natural:1}).limit(100).exec(function (err, messages) {
+            if (err) throw err;
+            resolve(messages);
+        });
+    })
+}
 
 
 module.exports.getConversation = getConversation;
 module.exports.getUserConversations = getUserConversations;
 module.exports.createConversation = createConversation;
 module.exports.addMessageToDatabase = addMessageToDatabase;
+module.exports.setLastSeenUser = setLastSeenUser;
+module.exports.getMessagesFromConversation = getMessagesFromConversation;
 
 module.exports.goToHome = goToHome;
 module.exports.goToConversation = goToConversation;

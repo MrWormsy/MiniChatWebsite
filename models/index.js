@@ -4,7 +4,8 @@ const Schema = mongoose.Schema; //majuscule car instance d'un objet (tester si Ã
 const User = new Schema({
     username : String,
     password: String,
-    email : String
+    email : String,
+    lastseen : {type : Number, default: Date.now()}
 });
 
 const Conversation = new Schema({

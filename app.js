@@ -49,6 +49,7 @@ app.use(Routes);
 
 // MongoDB
 const mongoose = require('mongoose');
+mongoose.set('useFindAndModify', false);
 database = 'mongodb://localhost:27017/chat';
 mongoose.connect(database, (err) => {
   if (err)
@@ -117,6 +118,7 @@ conversations.on('connection', function(socket) {
 
     let conversationId;
     let username;
+    let userId;
     let socketId = socket.client.id;
 
     // We create two Promises to get the two values to handle the disconnection
@@ -138,6 +140,14 @@ conversations.on('connection', function(socket) {
       })
     );
 
+    promiseArray.push( new Promise(function (resolve) {
+          client.hget(socketId, 'userId', function (err, response) {
+            userId = response;
+            resolve(response);
+          })
+        })
+    );
+
     // We wait the end of all the promises to emit and delete the variable on redis
     Promise.all(promiseArray).then(function () {
 
@@ -152,6 +162,9 @@ conversations.on('connection', function(socket) {
         if (err) throw err;
         conversations.emit('users online', result);
       });
+
+      // We update the attribute last seen of the user
+      controller.setLastSeenUser(userId);
 
       // Remove the socket data from the redis server after getting all the information needed
       client.del(socketId);
