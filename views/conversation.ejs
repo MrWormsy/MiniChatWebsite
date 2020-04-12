@@ -62,35 +62,51 @@
 
 <div class="container">
 
-
-
     <section class="section">
 
         <div class="tile is-ancestor">
             <div class="tile is-parent" id="chart_box">
                 <div class="tile is-child box">
 
+                    <div class="field is-grouped">
+                        <p class="control">
+                            <input id="friend" autocomplete="true" class="input" type="text" placeholder="Add a friend">
+                        </p>
+                        <p class="control">
+                            <a id="addFriend" class="button is-secondary">
+                                <span class="icon"><i class="fas fa-users"></i></span>
+                                <span>Add friend</span>
+                            </a>
+                        </p>
+                    </div>
+
                 <!--    <ul id="messages"></ul> -->
-                    <div class="are-medium" id="messages"></div>
+                    <div class="are-medium" id="messages" style="overflow:scroll; overflow-x: hidden;"></div>
+
+                    <div class="field is-grouped">
+                        <p class="control is-expanded">
+                            <input id="m" autocomplete="off" class="input is-fullwidth" type="text" placeholder="Message">
+                        </p>
+                        <p class="control">
+                            <a id="sendButton" class="button is-primary is-fullwidth">
+                                <span class="icon"><i class="fas fa-paper-plane"></i></span>
+                                <span>Send</span>
+                            </a>
+                        </p>
+                    </div>
 
                 </div>
+
+
+
             </div>
+
         </div>
 
 
     </section>
 
-    <div class="field is-grouped">
-        <p class="control is-expanded">
-            <input id="m" autocomplete="off" class="input is-fullwidth" type="text" placeholder="Message">
-        </p>
-        <p class="control">
-            <a id="sendButton" class="button is-primary is-fullwidth">
-                <span class="icon"><i class="fas fa-paper-plane"></i></span>
-                <span>Send</span>
-            </a>
-        </p>
-    </div>
+
 
 </div>
 
@@ -100,6 +116,9 @@
     const conversationId = "<%=conversationid%>";
     const senderId = "<%=session.userid%>";
     const username = "<%=session.username%>";
+
+    // Set the size of the section
+    document.getElementById("messages").style.height = window.screen.height / 1.7 + "px";
 
     // The socket variable
     const socket = io('/conversations');
@@ -134,6 +153,10 @@
         }
 
         $('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag tooltip is-rounded is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(message.content).append($(`<span class="tooltiptext">`).text(new Date(message.timestamp).toGMTString().replace(" GMT", "") + ", " + `${messageUsername === username ? 'you' : username}` + " said"))));
+
+        // Scroll to botom
+        var objDiv = document.getElementById("messages");
+        objDiv.scrollTop = objDiv.scrollHeight;
 
         //$('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag is-rounded is-medium profile-pic">O</span>`)).append($(`<span class="tag is-rounded is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(new Date(message.timestamp).toLocaleString() + " " + messageUsername + " wrote " + message.content)));
     }

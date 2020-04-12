@@ -318,7 +318,7 @@ function setLastSeenUser(userId) {
     })
 }
 
-
+// Get all the messages of a conversation
 function getMessagesFromConversation(conversationId) {
     return new Promise(function (resolve, reject) {
         const Models = require("../models");
@@ -328,7 +328,6 @@ function getMessagesFromConversation(conversationId) {
         });
     })
 }
-
 
 module.exports.getConversation = getConversation;
 module.exports.getUserConversations = getUserConversations;
