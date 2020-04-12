@@ -3,7 +3,12 @@ const mongoose = require('mongoose');
 // Go to Home
 function goToHome(req, res) {
     res.render('index', {page : 'home', session: req.session, conversations: null});
+
+
+    //createConversation('5e8dd22bc7f6866dad8e33b7', [new RegExp(["^", "PRout", "$"].join(""), "i"), new RegExp(["^", "Tamer", "$"].join(""), "i"), new RegExp(["^", 'Coucou', "$"].join(""), "i")], "MERDE");
+
 }
+
 
 // Go to profile
 function goToProfile(req, res) {
@@ -26,6 +31,7 @@ function goToProfile(req, res) {
 
 // Go to a conversation page
 function goToConversation(req, res) {
+
     // If the person is not logged in we redirect to home
     if (typeof req.session.username === 'undefined') {
         res.redirect('/');
@@ -279,22 +285,58 @@ function getUserConversations(id) {
     })
 }
 
-// Create a conversation with a list of participants
-function createConversation(leaderId, friendIds) {
-    const Models = require("../models");
+// TODO SEND AN EMAIL EACH TIME SOMEONE CREATES A CONVERSATION WITH A DUDE IN IT
 
-    let users = friendIds;
-    users.push(leaderId);
+// Send a socket to say a new conversation has been created and the user is part of it
 
-    // We first create a conversation with the leader in it
-    // create an account
-    const newConversation = Models.Conversation({
-        name: 'Test conversation',
-        users: users
-    });
+// Create a conversation with a list of participants, the leader with its id and the names of the friends.
+function createConversation(leaderId, friends, name) {
 
-    newConversation.save(function (err) {
-        if (err) throw err;
+    return new Promise(function (resolve) {
+
+        const Models = require("../models");
+
+        let formatedFriends = [];
+        let friendIds = [];
+
+        // Format the friends names with a regex to be case unsensitive
+        friends.forEach(function (f) {
+            formatedFriends.push(new RegExp(["^", f, "$"].join(""), "i"));
+        });
+
+        // We first find the ids of the friends (if they exists)
+        Models.User.find({'username': { $in: formatedFriends}}, function(err, docs){
+            return docs;
+        }).then(function (response) {
+            // We loop here and push the ids in the array
+            response.forEach(function (d) {
+                friendIds.push(d._id);
+            });
+
+            return friendIds;
+
+        }).then(function (idList) {
+
+            let users = idList;
+
+            // Push the leader id in it
+            users.push(leaderId);
+
+            // Create a new conversation
+            const newConversation = Models.Conversation({
+                name: name,
+                users: users
+            });
+
+            // Save it
+            newConversation.save(function (err, result) {
+                if (err) throw err;
+
+                // Then resolve the result to redirect the user
+                resolve(result);
+            });
+        });
+
     });
 }
 

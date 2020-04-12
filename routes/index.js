@@ -76,6 +76,26 @@ router.post('/api/addfriendtoconversation', (req, res) => {
   })
 });
 
+// Create a conversation
+router.post('/api/createconversation', (req, res) => {
+
+  let users = req.body.users;
+
+  // Here we remove all the spaces and then split by the comma ','
+  users = users.replace(/ /g,'');
+  let usersList = users.split(",");
+
+  console.log(usersList);
+
+  // Add the user to the conversation
+  controller.createConversation(req.body.leaderId, usersList, req.body.name).then(function (conversation) {
+
+    // Then we redirect the user to the page of the newly created conversation
+    res.json(conversation);
+
+  });
+});
+
 // Get all the 100 last messages of a conversation
 router.get('/api/messages/:id', (req, res) => {
   controller.getMessagesFromConversation(req.params.id).then(function (messages) {

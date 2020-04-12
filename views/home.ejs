@@ -7,6 +7,23 @@
                     <p class="panel-heading">
                         Conversations
                     </p>
+
+                    <% // Check if the user is logged to display his conversations
+                    if(!(!session.username)) { %>
+
+                    <div class="panel-block" id="newConversation">
+                        <p class="control" style="width: 33%">
+                            <input id="conversationName" class="input" type="text" placeholder="Name">
+                        </p>
+                        <p class="control">
+                            <input id="conversationFriends" class="input" type="text" placeholder="Friends (separated by a comma)">
+                        </p>
+                        <a onclick="createNewConversation()" id="addFriend" class="button is-secondary" style="float: right;">
+                            <span class="icon"><i class="fas fa-comments"></i></span>
+                            <span>Create conversation</span>
+                        </a>
+                    </div>
+
                     <div class="panel-block">
                         <p class="control has-icons-left">
                             <input class="input" type="text" placeholder="Search conversation">
@@ -15,6 +32,8 @@
                             </span>
                         </p>
                     </div>
+
+                    <% } %>
 
 
                     <% // Check if the user is logged to display his conversations
@@ -30,8 +49,24 @@
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 
 <script>
-
     const userid = "<%=session.userid%>";
+
+    function createNewConversation() {
+
+        // Get the conversation name
+        let conversationName = $('#conversationName').val();
+
+        // The friends
+        let conversationFriends = $('#conversationFriends').val();
+
+        $.post('/api/createconversation', {leaderId: userid, users: conversationFriends, name: conversationName}, function (data) {
+
+            // We redirect the user to the conversation he has created
+            window.location.replace("/conversation/" + data._id);
+
+        });
+
+    }
 
     let tbody = $("#tbody");
 
