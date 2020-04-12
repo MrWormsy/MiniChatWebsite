@@ -210,11 +210,16 @@ function getEmail(req, res) {
 
 // Get a conversation via its id and populate the users in it
 function getConversation(id) {
-    const Model = require("../models");
-    Model.Conversation.findOne({_id:id}).populate('user').exec(function (err, data) {
-        if (err) throw err;
-        console.log(data);
-    })
+
+    return new Promise(function (resolve) {
+
+        const Model = require("../models");
+        Model.Conversation.findOne({_id:id}).exec(function (err, data) {
+            if (err) throw err;
+            resolve(data);
+        })
+
+    });
 }
 
 function userBelongsToTheConversation(conversationId, userId) {
@@ -308,6 +313,7 @@ function createConversation(leaderId, friends, name) {
         Models.User.find({'username': { $in: formatedFriends}}, function(err, docs){
             return docs;
         }).then(function (response) {
+
             // We loop here and push the ids in the array
             response.forEach(function (d) {
                 friendIds.push(d._id);
@@ -360,6 +366,22 @@ function setLastSeenUser(userId) {
     })
 }
 
+// Delete a given conversation
+function deleteConversation(conversationId) {
+    const Models = require("../models");
+    Models.Conversation.deleteOne({_id: conversationId}, function (err) {
+        if (err) throw err;
+    });
+}
+
+// Rename a given conversation
+function renameConversation(conversationId, name) {
+    const Models = require("../models");
+    Models.Conversation.updateOne({_id: conversationId}, {name: name}, function(err, res) {
+        if (err) throw err;
+    });
+}
+
 // Add a user to a given conversation
 function addUserToConversation(username, conversationId) {
 
@@ -403,6 +425,8 @@ function getMessagesFromConversation(conversationId) {
 }
 
 module.exports.getConversation = getConversation;
+module.exports.renameConversation = renameConversation;
+module.exports.deleteConversation = deleteConversation;
 module.exports.addUserToConversation = addUserToConversation;
 module.exports.getUserConversations = getUserConversations;
 module.exports.createConversation = createConversation;

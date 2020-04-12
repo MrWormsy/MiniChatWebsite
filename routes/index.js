@@ -64,6 +64,13 @@ router.get('/api/conversations/:userid', (req, res) => {
   })
 });
 
+// Get the conversations the user is in
+router.get('/api/conversationname/:id', (req, res) => {
+  controller.getConversation(req.params.id).then(function (d) {
+    res.json(d.name);
+  })
+});
+
 // Add a user to the conversation
 router.post('/api/addfriendtoconversation', (req, res) => {
 
@@ -85,8 +92,6 @@ router.post('/api/createconversation', (req, res) => {
   users = users.replace(/ /g,'');
   let usersList = users.split(",");
 
-  console.log(usersList);
-
   // Add the user to the conversation
   controller.createConversation(req.body.leaderId, usersList, req.body.name).then(function (conversation) {
 
@@ -94,6 +99,33 @@ router.post('/api/createconversation', (req, res) => {
     res.json(conversation);
 
   });
+});
+
+// Delete a conversation
+router.post('/api/deleteconversation', (req, res) => {
+
+  // We get the conversation id and then send
+  let conversationId = req.body.conversationId;
+
+  // Add the user to the conversation
+  controller.deleteConversation(conversationId);
+
+  // Then we redirect the user to the page of the newly created conversation
+  res.json('done');
+});
+
+// Delete a conversation
+router.post('/api/renameconversation', (req, res) => {
+
+  // We get the conversation id and then send
+  let conversationId = req.body.conversationId;
+  let name = req.body.name;
+
+  // Add the user to the conversation
+  controller.renameConversation(conversationId, name);
+
+  // Then we redirect the user to the page of the newly created conversation
+  res.json('done');
 });
 
 // Get all the 100 last messages of a conversation

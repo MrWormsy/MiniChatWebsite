@@ -66,18 +66,47 @@
 
         <div class="tile is-ancestor">
             <div class="tile is-parent" id="chart_box">
-                <div class="tile is-child box">
+                <div class="tile is-child box" id="tileBox">
+
+                    <h1 id="conversationName" class="title"><a id="settings" class="tag is-rounded is-medium" onclick='toggleSettings()'><i class="fas fa-cog"></i></a></h1>
 
                     <div class="field is-grouped">
-                        <p class="control">
+
+                        <!-- Add a friend -->
+
+                        <p class="control" id="friendInput">
                             <input id="friend" autocomplete="true" class="input" type="text" placeholder="Add a friend">
                         </p>
-                        <p class="control">
+
+                        <p class="control" id="friendButton">
                             <a id="addFriend" class="button is-secondary">
                                 <span class="icon"><i class="fas fa-users"></i></span>
                                 <span>Add friend</span>
                             </a>
                         </p>
+
+                        <!-- Rename conversation -->
+
+                        <p class="control" id="rename">
+                            <input id="renameInput" autocomplete="true" class="input" type="text" placeholder="New name">
+                        </p>
+
+                        <p class="control" id="renameButton">
+                            <a onclick="renameConversation()" class="button is-secondary">
+                                <span class="icon"><i class="far fa-keyboard"></i></span>
+                                <span>Rename</span>
+                            </a>
+                        </p>
+
+                        <!-- Delete conversation -->
+
+                        <p class="control" id="deleteButton">
+                            <a onclick="deleteConversation()" class="button is-danger">
+                                <span class="icon"><i class="far fa-keyboard"></i></span>
+                                <span>Delete conversation</span>
+                            </a>
+                        </p>
+
                     </div>
 
                 <!--    <ul id="messages"></ul> -->
@@ -97,16 +126,11 @@
 
                 </div>
 
-
-
             </div>
 
         </div>
 
-
     </section>
-
-
 
 </div>
 
@@ -117,8 +141,22 @@
     const senderId = "<%=session.userid%>";
     const username = "<%=session.username%>";
 
+    let settingsToggled = false;
+
+    // By default everything is hidden
+    $('#friendInput').hide();
+    $('#friendButton').hide();
+    $('#renameButton').hide();
+    $('#rename').hide();
+    $('#deleteButton').hide();
+
+    // Get the conversation's name from its id
+    $.getJSON('/api/conversationname/' + conversationId, function(name) {
+        $('#conversationName').text(name).append(` - <a id="settings" class="tag is-rounded is-medium" onclick='toggleSettings()'><i class="fas fa-cog"></i></a>`);
+    });
+
     // Set the size of the section
-    document.getElementById("messages").style.height = window.screen.height / 1.7 + "px";
+    document.getElementById("messages").style.height = window.screen.height / 1.9 + "px";
 
     // The socket variable
     const socket = io('/conversations');
@@ -133,6 +171,57 @@
             writeMessage(m);
         })
     });
+
+    // Toggle settings
+    function toggleSettings() {
+
+        // If they are showed we hide them
+        if (settingsToggled) {
+            $('#friendInput').hide();
+            $('#friendButton').hide();
+            $('#renameButton').hide();
+            $('#rename').hide();
+            $('#deleteButton').hide();
+        }
+
+        // Otherwise we show
+        else {
+            $('#friendInput').show();
+            $('#friendButton').show();
+            $('#renameButton').show();
+            $('#rename').show();
+            $('#deleteButton').show();
+        }
+
+        // We toggle the settings value
+        settingsToggled = !settingsToggled;
+    }
+
+    // Delete current conversation
+    function deleteConversation() {
+
+        // Send a post request to delete the current conversation
+        $.post('/api/deleteconversation', {conversationId: conversationId}, function (data) {
+            window.location.replace("/home");
+        });
+
+    }
+
+    // Rename the current conversation
+    function renameConversation() {
+
+        // Send a post request to rename the current conversation
+        $.post('/api/renameconversation', {name: $('#renameInput').val(), conversationId: conversationId}, function (data) {
+
+            // Rename the conversation
+            $('#conversationName').text($('#renameInput').val()).append(` - <a id="settings" class="tag is-rounded is-medium" onclick='toggleSettings()'><i class="fas fa-cog"></i></a>`);
+
+            // Reset the field
+            $('#renameInput').val('');
+
+        });
+
+    }
 
     // TODO DO PAGINATION TO RETRIEVE THE 100+ last messages
 
