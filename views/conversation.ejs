@@ -38,7 +38,7 @@
 
         /* Position the tooltip text - see examples below! */
         position: absolute;
-        z-index: 1;
+        z-index: 100;
     }
 
     /* Show the tooltip text when you mouse over the tooltip container */
@@ -138,21 +138,14 @@
 
     // Write a message in the client browser
     function writeMessage(message) {
-        //let element = `<p><span class="tag">new Date(message.timestamp).toLocaleString() + " " + message.username + " wrote " + message.content</span></p>`;
-        //$('#messages').append(element);
-
         let messageUsername = message.username;
 
         // If we have that, this means the messages written are old messages thus the username is as follow
-
-
-        //$('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<div class="tags are-medium" style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag is-rounded is-medium profile-pic">O</span>`)).append($(`<span class="tag is-rounded is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(new Date(message.timestamp).toLocaleString() + " " + messageUsername + " wrote " + message.content))));
-
-        if (!message.username === true) {
+        if (!message.username) {
             messageUsername = message.senderId.username;
         }
 
-        $('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag tooltip is-rounded is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(message.content).append($(`<span class="tooltiptext">`).text(new Date(message.timestamp).toGMTString().replace(" GMT", "") + ", " + `${messageUsername === username ? 'you' : username}` + " said"))));
+        $('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag tooltip is-rounded is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(message.content).append($(`<span class="tooltiptext">`).text(new Date(message.timestamp).toGMTString().replace(" GMT", "") + ", " + `${messageUsername === username ? 'you' : messageUsername}` + " said"))));
 
         // Scroll to botom
         var objDiv = document.getElementById("messages");
@@ -177,6 +170,24 @@
             if (e.keyCode == 13) {
                 $('#sendButton').click();
             }
+        });
+
+        // When the user clicks on the add friend button
+        $('#addFriend').click(function (e) {
+
+            // We check that the Friend exists
+            $.post('/api/addfriendtoconversation/', {friend: $('#friend').val(), conversationId: conversationId}, function (data) {
+
+                // If the response is not done we alert
+                if (data !== 'done') {
+                    alert(data);
+                }
+
+                // Reset the text input
+                $('#friend').val("");
+
+            });
+
         });
 
         // When we click the button

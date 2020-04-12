@@ -64,6 +64,18 @@ router.get('/api/conversations/:userid', (req, res) => {
   })
 });
 
+// Add a user to the conversation
+router.post('/api/addfriendtoconversation', (req, res) => {
+
+  // Add the user to the conversation
+  controller.addUserToConversation(req.body.friend, req.body.conversationId).then(function (response) {
+
+    // Send the response (done or error)
+    res.json(response);
+
+  })
+});
+
 // Get all the 100 last messages of a conversation
 router.get('/api/messages/:id', (req, res) => {
   controller.getMessagesFromConversation(req.params.id).then(function (messages) {

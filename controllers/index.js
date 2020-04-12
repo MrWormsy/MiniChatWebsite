@@ -318,6 +318,37 @@ function setLastSeenUser(userId) {
     })
 }
 
+// Add a user to a given conversation
+function addUserToConversation(username, conversationId) {
+
+    return new Promise(function (resolve, reject) {
+
+        // First we check that the friend exists (we get his id)
+        const Models = require('../models');
+
+        let regex = new RegExp(["^", username, "$"].join(""), "i");
+
+        Models.User.find({username: regex}, function (err, user) {
+            if (err) throw err;
+
+            // If we do not get one result this means this is not a valid user
+            if (user.length != 1) {
+                resolve('Error: User do not exists');
+                return;
+            }
+
+            // Now we push the new user into the conversation (the key $addToSet prevents duplicates)
+            Models.Conversation.findOneAndUpdate({_id: conversationId}, {$addToSet: {users: user[0]._id}}, function (err, result) {
+                if (err) throw err;
+                resolve('done');
+            });
+
+        });
+
+    });
+
+}
+
 // Get all the messages of a conversation
 function getMessagesFromConversation(conversationId) {
     return new Promise(function (resolve, reject) {
@@ -330,6 +361,7 @@ function getMessagesFromConversation(conversationId) {
 }
 
 module.exports.getConversation = getConversation;
+module.exports.addUserToConversation = addUserToConversation;
 module.exports.getUserConversations = getUserConversations;
 module.exports.createConversation = createConversation;
 module.exports.addMessageToDatabase = addMessageToDatabase;
