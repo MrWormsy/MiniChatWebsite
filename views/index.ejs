@@ -106,8 +106,26 @@
 
         const user = "<%=session.username%>";
 
-        // We send a message to say a user is connected
+        // We emit a message to say this user is connected
+        const onlineSocket = io('/online');
+        onlineSocket.emit('user connection', {username: user});
 
+        // When we want to update the list of online users
+        onlineSocket.on('users online', function (message) {
+            const dropdownUsers = $('#dropdownUsers');
+
+            // As we have all the users connected we can populate the navbar without the current user
+            let listUsers = message;
+            //listUsers.pop(user);
+
+            // We remove all the data from the dropdown
+            dropdownUsers.empty();
+
+            // Then add the users
+            listUsers.forEach(function (user) {
+                dropdownUsers.append(`<span class="navbar-item">${user}</span>`)
+            })
+        })
 
     <% } %>
 

@@ -49,6 +49,55 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', dirViews);
 app.set('view engine', 'ejs');
 
+// We create the namespace online which handles only the online "chanel" used when users are online
+const online = io.of('/online');
+
+online.on('connection', function(socket) {
+
+  // Triggered when the users connects
+  socket.on('user connection', function (message) {
+
+    // We need to add the socket and the name of the user to handle the disconnection
+    client.hset('online:' + socket.client.id, 'username', message.username);
+
+    // We add the user into the list of connected users // Only if he his not already in
+    client.rpush("connectedUsers", message.username);
+
+    // As a player joins we tell the other users that a new person is online
+    client.lrange("connectedUsers", 0, -1, function (err, result) {
+      if (err) throw err;
+      online.emit('users online', result);
+    });
+  });
+
+  // When disconnecting we disconnect the socket
+  socket.on('disconnect', function() {
+
+    // We get the username corresponding to this socket
+    const promiseUsername = new Promise(function (resolve) {
+      client.hget('online:' + socket.client.id, 'username', function (err, response) {
+        resolve(response);
+      })
+    });
+
+    // We remove the player from the list of connected users
+    promiseUsername.then(function (username) {
+
+      // We remove the user from the connected persons
+      client.lrem('connectedUsers', 1, "" + username);
+
+      // And we emit to everyone the now list of connected persons
+      client.lrange("connectedUsers", 0, -1, function (err, result) {
+        if (err) throw err;
+        conversations.emit('users online', result);
+      });
+
+      // And we disconnect
+      socket.disconnect();
+    });
+  });
+});
+
 // We create the namespace conversation which handles only the conversations "chanel"
 const conversations = io.of('/conversations');
 
@@ -62,17 +111,6 @@ conversations.on('connection', function(socket) {
     socket.userId = msg.userId;
     socket.username = msg.username;
 
-    // TODO DO SOMETHING NOT TO SPAM THE CLIENTS WHEN SOMEONE RELOAD OR CHANGE PAGE
-
-    // We add the user into the list of connected users // Only if he his not already in
-    client.rpush("connectedUsers", msg.username);
-
-    // As a player joins we tell the other users that a new person is online
-    client.lrange("connectedUsers", 0, -1, function (err, result) {
-      if (err) throw err;
-      conversations.emit('users online', result);
-    });
-
     // Add a redis variable with the conversation id, the user id and the username to be able to handle the disconnection
     // Add the conversation id
     client.hset(socket.client.id, 'conversationId', msg.conversationId);
@@ -82,8 +120,6 @@ conversations.on('connection', function(socket) {
 
     // Add the username
     client.hset(socket.client.id, 'username', msg.username);
-
-    // TODO Do we keep the history of the player's connections ?
 
     // Warn the conversation that the user has joined the chat
     conversations.to(msg.conversationId).emit('user joined', msg.username);
@@ -138,15 +174,6 @@ conversations.on('connection', function(socket) {
 
       // Emit that a user has been disconnected
       conversations.to(conversationId).emit('user quit', username);
-
-      // We remove the user from the connected persons
-      client.lrem('connectedUsers', 1, "" + username);
-
-      // And we emit to everyone the now list of connected persons
-      client.lrange("connectedUsers", 0, -1, function (err, result) {
-        if (err) throw err;
-        conversations.emit('users online', result);
-      });
 
       // We update the attribute last seen of the user
       controller.setLastSeenUser(userId);

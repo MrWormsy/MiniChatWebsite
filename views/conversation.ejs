@@ -311,24 +311,6 @@
         socket.on('user quit', function (message) {
             $('#messages').append($('<span style="display: flex; justify-content: center; background: white;" class="tag is-centered">').text(message + " has quit the chat"));
         })
-
-        // When we want to update the list of online users
-        // TODO ISSUE HERE, THIS DO NOT TRIGGERS
-        socket.on('users online', function (message) {
-            const dropdownUsers = $('#dropdownUsers');
-
-            // As we have all the users connected we can populate the navbar without the current user
-            let listUsers = message;
-            listUsers.pop(username);
-
-            // We remove all the data from the dropdown
-            dropdownUsers.html('');
-
-            // Then add the users
-            listUsers.forEach(function (user) {
-                dropdownUsers.append(`<span class="navbar-item">${user}</span>`)
-            })
-        })
     });
 </script>
 
