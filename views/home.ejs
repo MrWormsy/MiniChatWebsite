@@ -56,8 +56,18 @@
         // Get the conversation name
         let conversationName = $('#conversationName').val();
 
+        // If the name of the conversation is null we set a default name
+        if (conversationName === "") {
+            conversationName = "My conversation";
+        }
+
         // The friends
         let conversationFriends = $('#conversationFriends').val();
+
+        // If there is no friends we abort
+        if (conversationFriends === "") {
+            return;
+        }
 
         $.post('/api/createconversation', {leaderId: userid, users: conversationFriends, name: conversationName}, function (data) {
 

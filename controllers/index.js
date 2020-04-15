@@ -127,8 +127,9 @@ function signUpPerson(req, res) {
                         //Store user's username into session
                         req.session.username = req.body.username;
                         req.session.userid = object._id;
+
+                        res.end('done');
                     });
-                    res.end('done');
                 }
             });
         }
