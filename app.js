@@ -4,7 +4,6 @@ const Routes = require('./routes');
 const redis = require('redis');
 const redisStore = require('connect-redis')(session);
 const client = redis.createClient();
-const cors = require('cors');
 const controller = require('./controllers');
 
 // We create the app as well as the server and the io part
@@ -12,20 +11,6 @@ const app = express();
 let port = 3000;
 const server = require('http').Server(app).listen(port);
 const io = require('socket.io')(server);
-
-// Not to have problems with cors...
-app.use(cors());
-app.options('*',cors());
-var allowCrossDomain = function(req,res,next) {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-}
-app.use(allowCrossDomain);
-
-
-
 
 // Session part
 app.use(session({
@@ -50,7 +35,7 @@ app.use(Routes);
 // MongoDB
 const mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
-database = 'mongodb://localhost:27017/chat';
+database = 'mongodb://localhost:27018/chat';
 mongoose.connect(database, (err) => {
   if (err)
     throw err;
