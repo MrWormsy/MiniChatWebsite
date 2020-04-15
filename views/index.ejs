@@ -97,6 +97,22 @@
 </body>
 </html>
 
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+
+    // If a user is connected we can show him who is online on the website
+    <%if(!(!session.username)) { %>
+
+        const user = "<%=session.username%>";
+
+        // We send a message to say a user is connected
+
+
+    <% } %>
+
+</script>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
 
