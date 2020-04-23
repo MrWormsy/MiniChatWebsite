@@ -117,7 +117,7 @@
                             <input id="m" autocomplete="off" class="input is-fullwidth" type="text" placeholder="Message">
                         </p>
                         <p class="control">
-                            <a id="sendButton" class="button is-primary is-fullwidth">
+                            <a id="sendButton" class="button is-success is-fullwidth">
                                 <span class="icon"><i class="fas fa-paper-plane"></i></span>
                                 <span>Send</span>
                             </a>
@@ -256,6 +256,41 @@
 
     $(function () {
 
+        const onlineSocket = io('/online');
+        onlineSocket.emit('user connection', {username: user});
+
+        let conversationUsernames = [];
+
+        // When we want to update the list of online users
+        onlineSocket.on('users online', function (message) {
+            updateConnectedUsers(message);
+        });
+
+        // We want to get all the uers of a conversation and then mark them as online or offline.
+        $.get('http://localhost:3000/api/conversationusernames/<%- conversationid%>', function (usernames) {
+            conversationUsernames = usernames;
+        });
+
+        function updateConnectedUsers(usersOnline) {
+
+            console.log(usersOnline);
+
+            // We add the users to the helper <p>
+            conversationUsernames.forEach(function (user) {
+
+                // if the current user span already exists we update it
+                if ($(`#useronline_${user}`).length !== 0) {
+                    $(`#useronline_${user}`).css("color", usersOnline.includes(user) ? "#2ecd71" : "#95a4a7");
+                }
+
+                // Otherwise we create a new one
+                else {
+                    $('#conversationUsers').append($(`<span style="color: ${usersOnline.includes(user) ? "#2ecd71" : "#95a4a7"}" class="online-users" id='useronline_${user}'>${user} </span>`));
+                }
+            });
+
+        }
+
         // When the user press enter on the message input we send it
         $('#m').keyup(function (e) {
             if (e.keyCode == 13) {
@@ -307,11 +342,13 @@
             $('#messages').append($('<span style="display: flex; justify-content: center; background: white;" class="tag is-centered">').text(message + " has joined the chat"));
         })
 
-        // When a user join the chat
+        // When a user quit the chat
         socket.on('user quit', function (message) {
             $('#messages').append($('<span style="display: flex; justify-content: center; background: white;" class="tag is-centered">').text(message + " has quit the chat"));
         })
     });
+
+
 </script>
 
 

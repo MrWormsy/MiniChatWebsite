@@ -35,7 +35,7 @@ app.use(Routes);
 // MongoDB
 const mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
-database = 'mongodb://localhost:27018/chat';
+database = 'mongodb://localhost:27017/chat';
 mongoose.connect(database, (err) => {
   if (err)
     throw err;
@@ -66,7 +66,7 @@ online.on('connection', function(socket) {
     // As a player joins we tell the other users that a new person is online
     client.lrange("connectedUsers", 0, -1, function (err, result) {
       if (err) throw err;
-      online.emit('users online', result);
+      online.emit('users online', [...new Set(result)]);
     });
   });
 
@@ -83,13 +83,13 @@ online.on('connection', function(socket) {
     // We remove the player from the list of connected users
     promiseUsername.then(function (username) {
 
-      // We remove the user from the connected persons
-      client.lrem('connectedUsers', 1, "" + username);
+      // We remove the user from the connected persons and its duplicates
+      client.lrem('connectedUsers', 0, username);
 
       // And we emit to everyone the now list of connected persons
       client.lrange("connectedUsers", 0, -1, function (err, result) {
         if (err) throw err;
-        conversations.emit('users online', result);
+        online.emit('users online', [...new Set(result)]);
       });
 
       // And we disconnect

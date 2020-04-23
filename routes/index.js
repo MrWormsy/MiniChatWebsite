@@ -135,4 +135,11 @@ router.get('/api/messages/:id', (req, res) => {
   });
 });
 
+// Get all the 100 last messages of a conversation
+router.get('/api/conversationusernames/:id', (req, res) => {
+  controller.getUsernamesOfConversation(req.params.id).then(function (messages) {
+    res.json(messages);
+  });
+});
+
 module.exports = router;

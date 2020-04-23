@@ -56,6 +56,28 @@ function goToConversation(req, res) {
     }
 }
 
+// Get the usernames of the users of the conversation
+function getUsernamesOfConversation(conversationId) {
+
+    return new Promise(function (resolve) {
+
+        // We get the conversation with the populated users and we only want to keep their usernames.
+        const Models = require("../models");
+        Models.Conversation.findOne({_id: conversationId}).populate('users').exec(function (err, conversation) {
+            if (err) throw err;
+
+            // If we dont get a converation we resolve an empty list
+            if (!conversation) {
+                resolve([]);
+                return;
+            }
+
+            // We only want to keep the usernames
+            resolve(conversation.users.map((item) => { return item["username"]; }));
+        });
+    });
+}
+
 // Go to the signup page
 function goToSignUp(req, res) {
     // If the person is already logged in we redirect him to the home page
@@ -426,6 +448,7 @@ function getMessagesFromConversation(conversationId) {
 }
 
 module.exports.getConversation = getConversation;
+module.exports.getUsernamesOfConversation = getUsernamesOfConversation;
 module.exports.renameConversation = renameConversation;
 module.exports.deleteConversation = deleteConversation;
 module.exports.addUserToConversation = addUserToConversation;

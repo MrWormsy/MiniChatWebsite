@@ -101,6 +101,8 @@
 
 <script>
 
+    let onlineUsers = [];
+
     // If a user is connected we can show him who is online on the website
     <%if(!(!session.username)) { %>
 
@@ -117,6 +119,8 @@
             // As we have all the users connected we can populate the navbar without the current user
             let listUsers = message;
             //listUsers.pop(user);
+
+            onlineUsers = message;
 
             // We remove all the data from the dropdown
             dropdownUsers.empty();
