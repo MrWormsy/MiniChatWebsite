@@ -136,8 +136,8 @@
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
-
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
 <script>
     const conversationId = "<%=conversationid%>";
     const senderId = "<%=session.userid%>";
@@ -273,8 +273,6 @@
 
         function updateConnectedUsers(usersOnline) {
 
-            console.log(usersOnline);
-
             // We add the users to the helper <p>
             conversationUsernames.forEach(function (user) {
 
@@ -308,9 +306,12 @@
                     alert(data);
                 }
 
+                // Update the conversation's friends
+                conversationUsernames.push($('#friend').val());
+                $('#conversationUsers').append($(`<span style="color: #95a4a7" class="online-users" id='useronline_${$('#friend').val()}'>${$('#friend').val()} </span>`));
+
                 // Reset the text input
                 $('#friend').val("");
-
             });
 
         });

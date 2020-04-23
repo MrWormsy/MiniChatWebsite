@@ -8,3 +8,5 @@
 - To deliver the messages we are using a socket.io namespace (/conversations) and a room for every active conversations.
 - We are able to retrieve all the user currently connected to the website (they are listed in the navbar).
 - We are now using replica sets to be fault tolerant with 3 replica sets and 1 arbiter.
+- We are able to know how many people are on a conversation (and who is currently online).
+- We know how many messages we missed while being offline.
