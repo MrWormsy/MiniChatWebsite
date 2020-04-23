@@ -56,28 +56,6 @@ function goToConversation(req, res) {
     }
 }
 
-// Get the usernames of the users of the conversation
-function getUsernamesOfConversation(conversationId) {
-
-    return new Promise(function (resolve) {
-
-        // We get the conversation with the populated users and we only want to keep their usernames.
-        const Models = require("../models");
-        Models.Conversation.findOne({_id: conversationId}).populate('users').exec(function (err, conversation) {
-            if (err) throw err;
-
-            // If we dont get a converation we resolve an empty list
-            if (!conversation) {
-                resolve([]);
-                return;
-            }
-
-            // We only want to keep the usernames
-            resolve(conversation.users.map((item) => { return item["username"]; }));
-        });
-    });
-}
-
 // Go to the signup page
 function goToSignUp(req, res) {
     // If the person is already logged in we redirect him to the home page
@@ -308,8 +286,35 @@ function getUserConversations(id) {
             //Models.User.find({"users": id}, function (err, conversations) {
             if (err) throw err;
 
-            resolve(conversations);
+            // As we have all the conversations we want know to know he many messages he missed
+            // We first get the last seen time
+            getLastSeenUser(id).then(function (lastSeen) {
+
+                // We get how many messages were received after this time and then we resolve
+                let promises = [];
+                conversations.forEach(function (conv) {
+                    promises.push(getNumberOfMessagesFrom(conv, lastSeen));
+                });
+
+                // When all the promises are done we can resolve
+                Promise.all(promises).then(function (result) {
+                    resolve(result);
+                })
+            });
         });
+    })
+}
+
+// Get how many messages were received after a given time
+function getNumberOfMessagesFrom(conversation, when) {
+    return new Promise(function (resolve) {
+        const Models = require("../models");
+        Models.Message.countDocuments({conversationId: conversation._id, timestamp: {$gte: when}}).exec(function (err, numberOfMessages) {
+            if (err) throw err;
+
+            // Resolve the number of messages
+            resolve({_id: conversation._id, numberOfMessages: numberOfMessages, name: conversation.name});
+        })
     })
 }
 
@@ -369,6 +374,28 @@ function createConversation(leaderId, friends, name) {
     });
 }
 
+// Get the usernames of the users of the conversation
+function getUsernamesOfConversation(conversationId) {
+
+    return new Promise(function (resolve) {
+
+        // We get the conversation with the populated users and we only want to keep their usernames.
+        const Models = require("../models");
+        Models.Conversation.findOne({_id: conversationId}).populate('users').exec(function (err, conversation) {
+            if (err) throw err;
+
+            // If we dont get a converation we resolve an empty list
+            if (!conversation) {
+                resolve([]);
+                return;
+            }
+
+            // We only want to keep the usernames
+            resolve(conversation.users.map((item) => { return item["username"]; }));
+        });
+    });
+}
+
 // Add a message into the database
 function addMessageToDatabase(message) {
 
@@ -386,6 +413,27 @@ function setLastSeenUser(userId) {
     const Models = require("../models");
     Models.User.findOneAndUpdate({_id: userId}, {lastseen:Date.now()}, function (err) {
         if (err) throw err;
+    })
+}
+
+// Get the last time the user was seen
+function getLastSeenUser(userId) {
+    return new Promise(function (resolve) {
+
+        const Models = require('../models');
+        Models.User.findOne({_id: userId}, function (err, user) {
+            if (err) throw err;
+
+            // If the user do not exists we resolve -1
+            if (!user) {
+                resolve(-1);
+                return;
+            }
+
+            // Else we return the last time
+            resolve(user.lastseen);
+        });
+
     })
 }
 
@@ -456,6 +504,7 @@ module.exports.getUserConversations = getUserConversations;
 module.exports.createConversation = createConversation;
 module.exports.addMessageToDatabase = addMessageToDatabase;
 module.exports.setLastSeenUser = setLastSeenUser;
+module.exports.getLastSeenUser = getLastSeenUser;
 module.exports.getMessagesFromConversation = getMessagesFromConversation;
 
 module.exports.goToHome = goToHome;

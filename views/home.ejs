@@ -88,7 +88,7 @@
             var values = "";
 
             data.forEach(function (d) {
-                values += `<a class="panel-block" href="/conversation/${d._id}"><span class="panel-icon"><i class="fas fa-envelope"></i></span>${d.name}</a>`;
+                values += `<a class="panel-block" href="/conversation/${d._id}"><span class="panel-icon"><i class="fas fa-envelope"></i></span>${d.name}<span style="position: absolute; font-size: small;right: 27%;">${d.numberOfMessages} new messages</span></a>`;
             })
 
             $(container).append(values);

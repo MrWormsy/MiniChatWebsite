@@ -84,7 +84,7 @@ online.on('connection', function(socket) {
     promiseUsername.then(function (username) {
 
       // We remove the user from the connected persons and its duplicates
-      client.lrem('connectedUsers', 0, username);
+      client.lrem('connectedUsers', 0, "" + username);
 
       // And we emit to everyone the now list of connected persons
       client.lrange("connectedUsers", 0, -1, function (err, result) {
