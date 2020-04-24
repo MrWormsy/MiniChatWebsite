@@ -9,6 +9,11 @@ function goToHome(req, res) {
 
 }
 
+// Go to the leaderboard page
+function goToLeaderboard(req, res) {
+    res.render('index', {page : 'leaderboard', session: req.session});
+}
+
 
 // Go to profile
 function goToProfile(req, res) {
@@ -22,9 +27,13 @@ function goToProfile(req, res) {
 
         let regex = new RegExp(["^", req.session.username, "$"].join(""), "i");
 
-        Models.User.find({username: regex}, function (err, user) {
+        Models.User.findOne({username: regex}, function (err, user) {
             if (err) throw err;
-            res.render('index', {page : 'profile', session: req.session, user: user[0]});
+
+            // We want to send as well some information about the user
+            getUserInfos(req.session.userid).then(function (infos) {
+                res.render('index', {page : 'profile', session: req.session, user: user, infos: infos});
+            })
         });
     }
 }
@@ -495,7 +504,84 @@ function getMessagesFromConversation(conversationId) {
     })
 }
 
+// Get all the messages a user has sent
+function getNumberOfMessagesSentByUser(userId) {
+
+    return new Promise(function (resolve) {
+
+        const Models = require("../models");
+        Models.Message.countDocuments({senderId: userId}).exec(function (err, count) {
+            if (err) throw err;
+
+            resolve(count);
+        });
+    });
+}
+
+// Get useful information about a user
+function getUserInfos(userid) {
+    return new Promise(function (resolveFunction) {
+
+        // We want to get some information like the number of conversations, of messages ect...
+        let nbConversations;
+        let countMessages;
+
+        // First the number of conversations
+        let nbConversationsPromise = new Promise(function (resolve) {
+            getUserConversations(userid).then(function (conversations) {
+                nbConversations = conversations.length;
+                resolve();
+            });
+        });
+
+        // Then the number of messages sent
+        let nbOfMessagesSentPromise = new Promise(function (resolve) {
+            getNumberOfMessagesSentByUser(userid).then(function (count) {
+                countMessages = count;
+                resolve();
+            });
+        });
+
+        // When everything is finished we can resolve
+        Promise.all([nbConversationsPromise, nbOfMessagesSentPromise]).then(function () {
+            resolveFunction({nbConversations: nbConversations, countMessages: countMessages});
+        });
+    });
+}
+
+// Get the overall stats of the website
+function getOverallStats() {
+
+    let promise;
+
+    return new Promise(function (resolveFunction) {
+
+       // First we want to get all the users and then get the stats of all those users
+        const Models = require("../models");
+        Models.User.find({}).exec(function (err, users) {
+            if (err) throw err;
+
+            let promises = [];
+
+            users.forEach(function (user) {
+                promise = new Promise(function (resolve) {
+                      getUserInfos(user._id).then(function (infos) {
+                          resolve({username: user.username, lastseen: user.lastseen, infos: infos});
+                      });
+                });
+
+                promises.push(promise);
+            });
+
+            Promise.all(promises).then(function (userWithInfos) {
+                resolveFunction(userWithInfos);
+            })
+        })
+    });
+}
+
 module.exports.getConversation = getConversation;
+module.exports.getOverallStats = getOverallStats;
 module.exports.getUsernamesOfConversation = getUsernamesOfConversation;
 module.exports.renameConversation = renameConversation;
 module.exports.deleteConversation = deleteConversation;
@@ -508,6 +594,7 @@ module.exports.getLastSeenUser = getLastSeenUser;
 module.exports.getMessagesFromConversation = getMessagesFromConversation;
 
 module.exports.goToHome = goToHome;
+module.exports.goToLeaderboard = goToLeaderboard;
 module.exports.goToConversation = goToConversation;
 module.exports.goToProfile = goToProfile;
 module.exports.goToSignUp = goToSignUp;

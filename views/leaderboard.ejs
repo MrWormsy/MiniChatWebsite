@@ -1,0 +1,51 @@
+<section class="section">
+    <div class="container">
+        <div class="notification">
+
+            <table class="table is-hoverable is-fullwidth" id="table_tradable_symbols">
+                <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Last Seen</th>
+                    <th>Number of conversations</th>
+                    <th>Number of messages sent</th>
+                </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+
+        </div>
+    </div>
+</section>
+
+
+<script>
+
+    // When the document has loaded we can populate the table
+    $(function () {
+
+        // Show all the users in the table with the one with the most messages
+        $.getJSON('/api/overallstats', function(data) {
+
+            console.log(data);
+
+            return;
+
+            var container = $("#tbody");
+            var values = "";
+
+            data.forEach(function (d) {
+
+                // We need to add the new pair
+                values += `<tr onclick=window.location="/dashboard/${d.symbol}"><td>${d.symbol}</td><td>${d.from}</td><td>${d.to}</td><td id='lastprice_${d.symbol}'>NaN</td></tr>`
+
+                // And update the last value
+                updateLastPrice(d.symbol);
+            })
+
+            $(container).append(values);
+        });
+
+    });
+
+</script>

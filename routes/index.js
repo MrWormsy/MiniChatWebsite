@@ -47,6 +47,11 @@ router.get('/logout', (req, res) => {
   controller.logOut(req, res);
 });
 
+// Leaderboard
+router.get('/leaderboard', (req, res) => {
+  controller.goToLeaderboard(req, res);
+});
+
 // Check if username exists
 router.get('/api/username/:username', (req, res) => {
   controller.getUsername(req, res);
@@ -139,6 +144,13 @@ router.get('/api/messages/:id', (req, res) => {
 router.get('/api/conversationusernames/:id', (req, res) => {
   controller.getUsernamesOfConversation(req.params.id).then(function (messages) {
     res.json(messages);
+  });
+});
+
+// Get the overall stats of the website
+router.get('/api/overallstats/', (req, res) => {
+  controller.getOverallStats().then(function (stats) {
+    res.json(stats);
   });
 });
 

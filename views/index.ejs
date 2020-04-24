@@ -28,6 +28,10 @@
                     Home
                 </a>
 
+                <a class="navbar-item" href="/leaderboard">
+                    Leaderboard
+                </a>
+
 
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">
@@ -90,6 +94,8 @@
     <%- include('profile.ejs') %>
 <% } else if (page === 'conversation') { %>
     <%- include('conversation.ejs') %>
+<% } else if (page === 'leaderboard') { %>
+    <%- include('leaderboard.ejs') %>
 <% } else { %>
     <%- include('home.ejs') %>
 <% } %>
@@ -98,6 +104,7 @@
 </html>
 
 <script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 
 <script>
 

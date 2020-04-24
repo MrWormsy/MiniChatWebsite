@@ -136,7 +136,6 @@
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
-<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 
 <script>
     const conversationId = "<%=conversationid%>";
@@ -235,6 +234,34 @@
         if (!message.username) {
             messageUsername = message.senderId.username;
         }
+
+        let maxMessageSize = 0;
+
+        if (window.screen.width >= 1408) {
+            maxMessageSize = 96;
+        } else if (window.screen.width >= 1216) {
+            maxMessageSize = 80;
+        } else if (window.screen.width >= 1024) {
+            maxMessageSize = 65;
+        } else if (window.screen.width >= 769) {
+            maxMessageSize = 50;
+        } else {
+            maxMessageSize = 28;
+        }
+
+        // 145 chars -> 1210px
+        // 145 chars -> 100%
+        //  96 chars -> 66%
+
+        // 122 -> 1020px
+
+        // In a window with more that 1408 px we can show 96 chars per lines
+
+        // fullhd -> 96 chars
+        // widescreen -> 80 chars
+        // desktop -> 65 chars
+        // tablet -> 50 chars
+        // mobile -> 28 chars
 
         $('#messages').append($(`<p style="text-align: ${messageUsername === username ? 'right' : 'left'}">`).append($(`<span class="tag tooltip is-rounded is-medium ${messageUsername === username ? 'is-success' : 'is-info'}">`).text(message.content).append($(`<span class="tooltiptext">`).text(new Date(message.timestamp).toGMTString().replace(" GMT", "") + ", " + `${messageUsername === username ? 'you' : messageUsername}` + " said"))));
 
