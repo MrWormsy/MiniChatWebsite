@@ -1,14 +1,22 @@
+<script>
+    let overallSort = true;
+</script>
+
 <section class="section">
     <div class="container">
         <div class="notification">
 
+            Here you can see the overall stats of the website. You can sort every rows.
+            <br>
+            <br>
+
             <table class="table is-hoverable is-fullwidth" id="table_tradable_symbols">
                 <thead>
                 <tr>
-                    <th>User</th>
-                    <th>Last Seen</th>
-                    <th>Number of conversations</th>
-                    <th>Number of messages sent</th>
+                    <th class="noselect" style="cursor: ns-resize;" onclick="showStatsBy(1)">User</th>
+                    <th class="noselect" style="cursor: ns-resize;" onclick="showStatsBy(3)">Last Seen</th>
+                    <th class="noselect" style="cursor: ns-resize;" onclick="showStatsBy(5)">Number of conversations</th>
+                    <th class="noselect" style="cursor: ns-resize;" onclick="showStatsBy(7)">Number of messages sent</th>
                 </tr>
                 </thead>
                 <tbody id="tbody"></tbody>
@@ -21,29 +29,107 @@
 
 <script>
 
+    let theStats;
+
+    // Compare two users infos by a key
+    function compareValues(key, order = 'asc') {
+        return function innerSort(a, b) {
+            if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+                return 0;
+            }
+
+            const varA = (typeof a[key] === 'string')
+                ? a[key].toUpperCase() : a[key];
+            const varB = (typeof b[key] === 'string')
+                ? b[key].toUpperCase() : b[key];
+
+            let comparison = 0;
+            if (varA > varB) {
+                comparison = 1;
+            } else if (varA < varB) {
+                comparison = -1;
+            }
+            return (
+                (order === 'desc') ? (comparison * -1) : comparison
+            );
+        };
+    }
+
+
+    function showStatsBy(sorting) {
+
+        if (overallSort) {
+            sorting++;
+        }
+
+        overallSort = !overallSort;
+
+        // sorting the stats by
+        // username asc -> 1
+        // username desc -> 2
+
+        // lastseen asc -> 3
+        // lasteen desc -> 4
+
+        // nb conversations asc -> 5
+        // nb conversations desc -> 6
+
+        // nb messages asc -> 7
+        // nb messages desc -> 8
+
+        let dataSorted = theStats;
+
+        switch (sorting) {
+
+            case 1:
+                dataSorted.sort(compareValues("username", "asc"));
+                break;
+            case 2:
+                dataSorted.sort(compareValues("username", "desc"));
+                break;
+            case 3:
+                dataSorted.sort(compareValues("lastseen", "asc"));
+                break;
+            case 4:
+                dataSorted.sort(compareValues("lastseen", "desc"));
+                break;
+            case 5:
+                dataSorted.sort(compareValues("nbConversations", "asc"));
+                break;
+            case 6:
+                dataSorted.sort(compareValues("nbConversations", "desc"));
+                break;
+            case 7:
+                dataSorted.sort(compareValues("countMessages", "asc"));
+                break;
+            case 8:
+                dataSorted.sort(compareValues("countMessages", "desc"));
+                break;
+        }
+
+        // Now that we have all the data we can remove the last rows and add the new ones
+        var container = $("#tbody");
+        var values = "";
+
+        container.html('');
+
+        // Add each rows
+        dataSorted.forEach(function (stats) {
+            values += `<tr><td>${stats.username}</td><td>${new Date(stats.lastseen).toLocaleString()}</td><td>${stats.nbConversations}</td><td>${stats.countMessages}</td></tr>`
+        })
+
+        $(container).append(values);
+    }
+
     // When the document has loaded we can populate the table
     $(function () {
 
         // Show all the users in the table with the one with the most messages
         $.getJSON('/api/overallstats', function(data) {
 
-            console.log(data);
+            theStats = data;
 
-            return;
-
-            var container = $("#tbody");
-            var values = "";
-
-            data.forEach(function (d) {
-
-                // We need to add the new pair
-                values += `<tr onclick=window.location="/dashboard/${d.symbol}"><td>${d.symbol}</td><td>${d.from}</td><td>${d.to}</td><td id='lastprice_${d.symbol}'>NaN</td></tr>`
-
-                // And update the last value
-                updateLastPrice(d.symbol);
-            })
-
-            $(container).append(values);
+            showStatsBy(2);
         });
 
     });

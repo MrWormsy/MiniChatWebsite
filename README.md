@@ -1,4 +1,5 @@
 # MiniChatWebsite (With David Petit in Pair Programming)
+## README under construction
 - We can create an account and log into this account.
 - We can send messages to everyone belonging to the conversation.
 - We are able to retrieve all the user's conversations with a timestamp.
@@ -11,4 +12,4 @@
 - We are able to know how many people are on a conversation (and who is currently online).
 - We know how many messages we missed while being offline.
 - We can see how many messages a user sent and how many conversations he belongs to.
-- There is a leaderboard page where we can see the stats of all the users (will be sortable in the future).
+- There is a leaderboard page where we can see the stats of all the users.

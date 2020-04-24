@@ -566,7 +566,7 @@ function getOverallStats() {
             users.forEach(function (user) {
                 promise = new Promise(function (resolve) {
                       getUserInfos(user._id).then(function (infos) {
-                          resolve({username: user.username, lastseen: user.lastseen, infos: infos});
+                          resolve({username: user.username, lastseen: user.lastseen, countMessages: infos.countMessages, nbConversations: infos.nbConversations});
                       });
                 });
 
